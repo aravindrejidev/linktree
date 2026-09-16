@@ -3,445 +3,1129 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+
 <title>Aravind — App Creator & Web Builder</title>
-<meta name="description" content="App Creator & Web Builder crafting next-gen digital products. Browse apps, websites and tools in one place." />
+
+<meta name="description" content="Aravind — App Creator & Web Builder. Explore TelDrive, Spectra and other digital projects." />
 <meta name="theme-color" content="#07090e" />
+
 <meta property="og:title" content="Aravind — App Creator & Web Builder" />
-<meta property="og:description" content="Crafting next-gen digital products. Browse my apps, websites & tools." />
+<meta property="og:description" content="Explore my apps, tools and digital projects." />
 <meta property="og:type" content="website" />
 
-<!-- Tailwind CSS (Play CDN) -->
+<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
+
 <script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: {
-          display: ['"Chakra Petch"', 'sans-serif'],
-          sans: ['"Manrope"', 'sans-serif']
-        }
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['"Chakra Petch"', 'sans-serif'],
+        sans: ['"Manrope"', 'sans-serif']
       }
     }
-  };
+  }
+};
 </script>
 
-<!-- Fonts: Chakra Petch (display / HUD numerals) + Manrope (body) -->
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+>
 
 <!-- Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-  :root{
-    --void:#07090e;      /* base background */
-    --deep:#0c1018;      /* near-opaque card backing */
-    --cyan:#2dd4e4;      /* signal cyan */
-    --violet:#9d5cff;    /* signal violet */
-    --magenta:#ff4f9a;   /* signal magenta */
-    --amber:#ffc24b;     /* signal amber, used sparingly */
+
+:root{
+  --void:#07090e;
+  --deep:#0c1018;
+  --cyan:#2dd4e4;
+  --violet:#9d5cff;
+  --magenta:#ff4f9a;
+  --amber:#ffc24b;
+}
+
+html,
+body{
+  max-width:100%;
+  overflow-x:hidden;
+}
+
+body{
+  background:var(--void);
+  font-family:'Manrope',sans-serif;
+  opacity:0;
+  animation:pageIn .5s ease forwards;
+}
+
+@keyframes pageIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+.font-display{
+  font-family:'Chakra Petch',sans-serif;
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar{
+  width:8px;
+  height:8px;
+}
+
+::-webkit-scrollbar-track{
+  background:transparent;
+}
+
+::-webkit-scrollbar-thumb{
+  background:rgba(255,255,255,.14);
+  border-radius:999px;
+}
+
+.no-scrollbar::-webkit-scrollbar{
+  display:none;
+}
+
+.no-scrollbar{
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+}
+
+/* Focus */
+
+a:focus-visible,
+button:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+  border-radius:8px;
+}
+
+/* Ambient background */
+
+.mesh-layer{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  z-index:0;
+  pointer-events:none;
+}
+
+.mesh-blob{
+  position:absolute;
+  border-radius:9999px;
+  filter:blur(90px);
+  will-change:transform;
+}
+
+.mesh-a{
+  width:460px;
+  height:460px;
+  top:-140px;
+  left:-120px;
+  background:var(--cyan);
+  opacity:.22;
+  animation:driftA 22s ease-in-out infinite;
+}
+
+.mesh-b{
+  width:500px;
+  height:500px;
+  top:8%;
+  right:-180px;
+  background:var(--violet);
+  opacity:.20;
+  animation:driftB 26s ease-in-out infinite;
+}
+
+.mesh-c{
+  width:420px;
+  height:420px;
+  bottom:-160px;
+  left:10%;
+  background:var(--magenta);
+  opacity:.16;
+  animation:driftC 28s ease-in-out infinite;
+}
+
+@keyframes driftA{
+  0%,100%{
+    transform:translate(0,0) scale(1)
+  }
+  50%{
+    transform:translate(50px,40px) scale(1.12)
+  }
+}
+
+@keyframes driftB{
+  0%,100%{
+    transform:translate(0,0) scale(1)
+  }
+  50%{
+    transform:translate(-40px,50px) scale(1.08)
+  }
+}
+
+@keyframes driftC{
+  0%,100%{
+    transform:translate(0,0) scale(1)
+  }
+  50%{
+    transform:translate(40px,-40px) scale(1.14)
+  }
+}
+
+/* HUD grid */
+
+.hud-grid{
+  position:fixed;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  opacity:.5;
+
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.035) 1px,
+      transparent 1px
+    );
+
+  background-size:46px 46px;
+
+  -webkit-mask-image:
+    radial-gradient(
+      ellipse 75% 55% at 50% 0%,
+      black 0%,
+      transparent 72%
+    );
+
+  mask-image:
+    radial-gradient(
+      ellipse 75% 55% at 50% 0%,
+      black 0%,
+      transparent 72%
+    );
+}
+
+/* Animations */
+
+@keyframes spin360{
+  from{
+    transform:rotate(0deg)
+  }
+  to{
+    transform:rotate(360deg)
+  }
+}
+
+.ring-spin{
+  animation:spin360 7s linear infinite;
+}
+
+.ring-spin-slow{
+  animation:spin360 12s linear infinite;
+}
+
+@keyframes badgePulse{
+  0%,100%{
+    box-shadow:0 0 0 0 rgba(74,222,128,.35)
   }
 
-  html,body{ max-width:100%; overflow-x:hidden; }
-  body{
-    background:var(--void);
-    font-family:'Manrope',sans-serif;
-    opacity:0;
-    animation:pageIn .5s ease forwards;
+  50%{
+    box-shadow:0 0 0 6px rgba(74,222,128,0)
   }
-  @keyframes pageIn{ from{ opacity:0 } to{ opacity:1 } }
-  .font-display{ font-family:'Chakra Petch',sans-serif; }
+}
 
-  ::-webkit-scrollbar{ width:8px; height:8px; }
-  ::-webkit-scrollbar-track{ background:transparent; }
-  ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.14); border-radius:999px; }
-  .no-scrollbar::-webkit-scrollbar{ display:none; }
-  .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none; }
+.badge-pulse{
+  animation:badgePulse 2.6s ease-in-out infinite;
+}
 
-  a:focus-visible, button:focus-visible{
-    outline:2px solid var(--cyan);
-    outline-offset:3px;
-    border-radius:8px;
+/* Cards */
+
+.glass-card{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+
+  transition:
+    background-color .3s ease,
+    border-color .3s ease,
+    transform .3s ease,
+    box-shadow .3s ease;
+}
+
+.glass-card:hover{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.18);
+  transform:translateY(-4px);
+
+  box-shadow:
+    0 20px 40px -22px rgba(0,0,0,.6);
+}
+
+/* Social buttons */
+
+.social-btn{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  color:#d1d5db;
+
+  transition:all .3s ease;
+}
+
+.social-btn:hover{
+  transform:translateY(-3px);
+}
+
+.social-x:hover{
+  border-color:rgba(255,255,255,.4);
+  box-shadow:0 0 28px -8px rgba(255,255,255,.3);
+  color:#fff;
+}
+
+.social-reddit:hover{
+  border-color:rgba(255,148,77,.45);
+  color:#ff9a5c;
+  box-shadow:0 0 28px -8px rgba(255,148,77,.35);
+}
+
+.social-instagram:hover{
+  border-color:rgba(255,79,154,.45);
+  color:#ff6fb0;
+  box-shadow:0 0 28px -8px rgba(255,79,154,.35);
+}
+
+/* Filter */
+
+.filter-btn{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  color:#9ca3af;
+
+  transition:all .25s ease;
+}
+
+.filter-btn:hover{
+  color:#fff;
+  border-color:rgba(255,255,255,.25);
+}
+
+.filter-btn.tab-active{
+  background:
+    linear-gradient(
+      90deg,
+      var(--cyan),
+      var(--violet)
+    );
+
+  border-color:transparent;
+  color:var(--void);
+  font-weight:600;
+
+  box-shadow:
+    0 0 24px -6px rgba(45,212,228,.55);
+}
+
+/* Project */
+
+.project-card{
+  transition:
+    opacity .3s ease,
+    transform .3s ease;
+}
+
+/* CTA */
+
+.cta-btn{
+  background:
+    linear-gradient(
+      90deg,
+      var(--cyan),
+      var(--violet)
+    );
+
+  color:var(--void);
+
+  transition:
+    transform .3s ease,
+    box-shadow .3s ease;
+}
+
+.cta-btn:hover{
+  transform:scale(1.03);
+
+  box-shadow:
+    0 0 32px -6px rgba(45,212,228,.55);
+}
+
+/* Arrow */
+
+.arrow-chip{
+  transition:all .3s ease;
+}
+
+.group:hover .arrow-chip{
+  background:rgba(45,212,228,.15);
+  border-color:rgba(45,212,228,.5);
+  color:var(--cyan);
+  transform:translate(2px,-2px);
+}
+
+/* Logo */
+
+.project-logo{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce){
+
+  *,
+  *::before,
+  *::after{
+
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+
+    transition-duration:0.01ms !important;
+
+    scroll-behavior:auto !important;
   }
+}
 
-  /* ---------- ambient mesh background ---------- */
-  .mesh-layer{ position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
-  .mesh-blob{ position:absolute; border-radius:9999px; filter:blur(90px); will-change:transform; }
-  .mesh-a{ width:460px; height:460px; top:-140px; left:-120px; background:var(--cyan); opacity:.22; animation:driftA 22s ease-in-out infinite; }
-  .mesh-b{ width:500px; height:500px; top:8%; right:-180px; background:var(--violet); opacity:.20; animation:driftB 26s ease-in-out infinite; }
-  .mesh-c{ width:420px; height:420px; bottom:-160px; left:10%; background:var(--magenta); opacity:.16; animation:driftC 28s ease-in-out infinite; }
-  @keyframes driftA{ 0%,100%{ transform:translate(0,0) scale(1) } 50%{ transform:translate(50px,40px) scale(1.12) } }
-  @keyframes driftB{ 0%,100%{ transform:translate(0,0) scale(1) } 50%{ transform:translate(-40px,50px) scale(1.08) } }
-  @keyframes driftC{ 0%,100%{ transform:translate(0,0) scale(1) } 50%{ transform:translate(40px,-40px) scale(1.14) } }
-
-  /* ---------- static HUD grid texture ---------- */
-  .hud-grid{
-    position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.5;
-    background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
-    background-size:46px 46px;
-    -webkit-mask-image:radial-gradient(ellipse 75% 55% at 50% 0%, black 0%, transparent 72%);
-    mask-image:radial-gradient(ellipse 75% 55% at 50% 0%, black 0%, transparent 72%);
-  }
-
-  @keyframes spin360{ from{ transform:rotate(0deg) } to{ transform:rotate(360deg) } }
-  .ring-spin{ animation:spin360 7s linear infinite; }
-  .ring-spin-slow{ animation:spin360 12s linear infinite; }
-
-  .tag-pill{ display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; padding:.3rem .65rem; border-radius:9999px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:#cbd5e1; white-space:nowrap; }
-
-  @keyframes badgePulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(74,222,128,.35) } 50%{ box-shadow:0 0 0 6px rgba(74,222,128,0) } }
-  .badge-pulse{ animation:badgePulse 2.6s ease-in-out infinite; }
-
-  .glass-card{ background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); transition:background-color .3s ease,border-color .3s ease,transform .3s ease,box-shadow .3s ease; }
-  .glass-card:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.18); transform:translateY(-3px); box-shadow:0 20px 40px -22px rgba(0,0,0,.6); }
-
-  .social-btn{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#d1d5db; transition:all .3s ease; }
-  .social-btn:hover{ transform:translateY(-3px); }
-  .social-x:hover{ border-color:rgba(255,255,255,.4); box-shadow:0 0 28px -8px rgba(255,255,255,.3); color:#fff; }
-  .social-reddit:hover{ border-color:rgba(255,148,77,.45); color:#ff9a5c; box-shadow:0 0 28px -8px rgba(255,148,77,.35); }
-  .social-instagram:hover{ border-color:rgba(255,79,154,.45); color:#ff6fb0; box-shadow:0 0 28px -8px rgba(255,79,154,.35); }
-
-  .filter-btn{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#9ca3af; transition:all .25s ease; }
-  .filter-btn:hover{ color:#fff; border-color:rgba(255,255,255,.25); }
-  .filter-btn.tab-active{ background:linear-gradient(90deg,var(--cyan),var(--violet)); border-color:transparent; color:var(--void); font-weight:600; box-shadow:0 0 24px -6px rgba(45,212,228,.55); }
-
-  .project-card{ transition:opacity .3s ease, transform .3s ease; }
-
-  .cta-btn{ background:linear-gradient(90deg,var(--cyan),var(--violet)); color:var(--void); transition:transform .3s ease, box-shadow .3s ease; }
-  .cta-btn:hover{ transform:scale(1.03); box-shadow:0 0 32px -6px rgba(45,212,228,.55); }
-
-  .arrow-chip{ transition:all .3s ease; }
-  .group:hover .arrow-chip{ background:rgba(45,212,228,.15); border-color:rgba(45,212,228,.5); color:var(--cyan); transform:translate(2px,-2px); }
-
-  @media (prefers-reduced-motion: reduce){
-    *, *::before, *::after{
-      animation-duration:0.01ms !important;
-      animation-iteration-count:1 !important;
-      transition-duration:0.01ms !important;
-      scroll-behavior:auto !important;
-    }
-  }
 </style>
 </head>
+
+
 <body class="text-white antialiased">
 
-  <div class="mesh-layer" aria-hidden="true">
-    <div class="mesh-blob mesh-a"></div>
-    <div class="mesh-blob mesh-b"></div>
-    <div class="mesh-blob mesh-c"></div>
+<!-- ================= BACKGROUND ================= -->
+
+<div class="mesh-layer" aria-hidden="true">
+
+  <div class="mesh-blob mesh-a"></div>
+  <div class="mesh-blob mesh-b"></div>
+  <div class="mesh-blob mesh-c"></div>
+
+</div>
+
+<div class="hud-grid" aria-hidden="true"></div>
+
+
+<!-- ================= MAIN ================= -->
+
+<main
+  class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-10"
+>
+
+
+<!-- ================= PROFILE ================= -->
+
+<header
+  class="flex flex-col items-center text-center mb-10 sm:mb-14"
+>
+
+  <!-- Profile icon -->
+
+  <div class="relative mb-5">
+
+    <div class="relative w-[104px] h-[104px]">
+
+      <!-- Animated ring -->
+
+      <div
+        class="absolute inset-0 rounded-full ring-spin"
+        style="
+          background:
+          conic-gradient(
+            from 0deg,
+            var(--cyan),
+            var(--violet),
+            var(--magenta),
+            var(--amber),
+            var(--cyan)
+          );
+
+          box-shadow:
+          0 0 30px -6px rgba(45,212,228,.55);
+        "
+      ></div>
+
+
+      <!-- Inner -->
+
+      <div
+        class="absolute inset-[3px] rounded-full"
+        style="background:var(--void);"
+      ></div>
+
+
+      <!-- Icon -->
+
+      <div
+        class="absolute inset-[6px] rounded-full flex items-center justify-center"
+        style="
+          background:
+          linear-gradient(
+            135deg,
+            var(--cyan),
+            var(--violet) 55%,
+            var(--magenta)
+          );
+        "
+      >
+
+        <i
+          data-lucide="rocket"
+          class="w-9 h-9 text-white"
+        ></i>
+
+      </div>
+
+    </div>
+
+
+    <!-- Online badge -->
+
+    <span class="absolute bottom-1 right-1 flex h-4 w-4">
+
+      <span
+        class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+        style="background:#4ade80;"
+      ></span>
+
+      <span
+        class="relative inline-flex rounded-full h-4 w-4 border-2"
+        style="
+          background:#22c55e;
+          border-color:var(--void);
+        "
+      ></span>
+
+    </span>
+
   </div>
-  <div class="hud-grid" aria-hidden="true"></div>
 
-  <main class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8">
 
-    <!-- ================= PROFILE HEADER ================= -->
-    <header class="flex flex-col items-center text-center mb-10 sm:mb-14">
+  <h1
+    class="font-display text-3xl sm:text-4xl font-semibold tracking-tight"
+  >
+    Aravind
+  </h1>
 
-      <div class="relative mb-5">
-        <div class="relative w-[104px] h-[104px]">
-          <div class="absolute inset-0 rounded-full ring-spin" style="background:conic-gradient(from 0deg, var(--cyan), var(--violet), var(--magenta), var(--amber), var(--cyan)); box-shadow:0 0 30px -6px rgba(45,212,228,.55);"></div>
-          <div class="absolute inset-[3px] rounded-full" style="background:var(--void);"></div>
-          <div class="absolute inset-[6px] rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,var(--cyan),var(--violet) 55%,var(--magenta));">
-            <i data-lucide="rocket" class="w-9 h-9 text-white"></i>
-          </div>
-        </div>
-        <span class="absolute bottom-1 right-1 flex h-4 w-4">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style="background:#4ade80;"></span>
-          <span class="relative inline-flex rounded-full h-4 w-4 border-2" style="background:#22c55e; border-color:var(--void);"></span>
-        </span>
+
+  <p class="text-sm text-gray-500 mt-1">
+    @aravind_3000
+  </p>
+
+
+  <p
+    class="mt-4 max-w-md text-[15px] sm:text-base text-gray-300 leading-relaxed"
+  >
+    App Creator &amp; Web Builder |
+    Crafting Next-Gen Digital Products 🚀
+  </p>
+
+
+  <!-- Status -->
+
+  <div
+    class="badge-pulse mt-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm"
+    style="
+      border:1px solid rgba(74,222,128,.3);
+      background:rgba(74,222,128,.08);
+      color:#86efac;
+    "
+  >
+
+    🟢 Currently Building Something Cool
+
+  </div>
+
+
+  <!-- Social -->
+
+  <div class="flex items-center gap-3 mt-6">
+
+
+    <!-- X -->
+
+    <a
+      href="https://x.com/Aravind_3000"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="X"
+      class="social-btn social-x w-11 h-11 rounded-full flex items-center justify-center"
+    >
+
+      <span
+        class="font-display font-bold text-lg leading-none"
+      >
+        X
+      </span>
+
+    </a>
+
+
+    <!-- Reddit -->
+
+    <a
+      href="https://www.reddit.com/u/gh9aravind_3000/s/VSYQ1NAKld"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Reddit"
+      class="social-btn social-reddit w-11 h-11 rounded-full flex items-center justify-center"
+    >
+
+      <i
+        data-lucide="message-circle"
+        class="w-[18px] h-[18px]"
+      ></i>
+
+    </a>
+
+
+    <!-- Instagram -->
+
+    <a
+      href="https://www.instagram.com/gh9aravind_3000?stkn=MWtxdWNvaGU2YXhvMg=="
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Instagram"
+      class="social-btn social-instagram w-11 h-11 rounded-full flex items-center justify-center"
+    >
+
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+
+        <rect
+          x="3"
+          y="3"
+          width="18"
+          height="18"
+          rx="5"
+          ry="5"
+        />
+
+        <path
+          d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
+        />
+
+        <line
+          x1="17.5"
+          y1="6.5"
+          x2="17.51"
+          y2="6.5"
+        />
+
+      </svg>
+
+    </a>
+
+  </div>
+
+</header>
+
+
+
+<!-- ================= FILTER ================= -->
+
+<div
+  class="flex items-center gap-2 overflow-x-auto no-scrollbar mb-8 sm:mb-10 sm:justify-center px-1"
+>
+
+  <button
+    type="button"
+    data-filter="all"
+    class="filter-btn tab-active flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium"
+  >
+    All Projects
+  </button>
+
+
+  <button
+    type="button"
+    data-filter="apps"
+    class="filter-btn flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium"
+  >
+    📱 Apps
+  </button>
+
+
+  <button
+    type="button"
+    data-filter="tools"
+    class="filter-btn flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium"
+  >
+    🛠️ Tools
+  </button>
+
+</div>
+
+
+
+<!-- ================= PROJECT GRID ================= -->
+
+<div
+  id="bento-grid"
+  class="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6"
+>
+
+
+<!-- ================================================= -->
+<!-- TELDRIVE -->
+<!-- ================================================= -->
+
+<div
+  class="project-card"
+  data-category="apps"
+>
+
+  <a
+    href="YOUR_TELDRIVE_REPO_URL"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="glass-card backdrop-blur-xl group relative flex flex-col h-full rounded-[24px] p-6 sm:p-7"
+  >
+
+
+    <!-- Top -->
+
+    <div
+      class="flex items-start justify-between mb-5"
+    >
+
+      <!-- Logo -->
+
+      <div
+        class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center shrink-0"
+        style="
+          background:
+          linear-gradient(
+            135deg,
+            #fb7185,
+            #fb923c
+          );
+
+          box-shadow:
+          0 10px 30px -10px rgba(251,113,133,.45);
+        "
+      >
+
+        <img
+          src="images/TelDrive.png"
+          alt="TelDrive Logo"
+          class="project-logo"
+        >
+
       </div>
 
-      <h1 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight">Aravind</h1>
-      <p class="text-sm text-gray-500 mt-1">@aravind_3000</p>
 
-      <p class="mt-4 max-w-md text-[15px] sm:text-base text-gray-300 leading-relaxed">
-        App Creator &amp; Web Builder | Crafting Next-Gen Digital Products 🚀
-      </p>
+      <!-- Arrow -->
 
-      <div class="badge-pulse mt-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm" style="border:1px solid rgba(74,222,128,.3); background:rgba(74,222,128,.08); color:#86efac;">
-        🟢 Currently Building Something Cool
+      <div
+        class="arrow-chip w-10 h-10 rounded-full flex items-center justify-center"
+        style="
+          background:rgba(255,255,255,.05);
+          border:1px solid rgba(255,255,255,.1);
+          color:#9ca3af;
+        "
+      >
+
+        <i
+          data-lucide="arrow-up-right"
+          class="w-4 h-4"
+        ></i>
+
       </div>
 
-      <div class="flex items-center gap-3 mt-6">
-        <a href="https://x.com/Aravind_3000" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"
-           class="social-btn social-x w-11 h-11 rounded-full flex items-center justify-center">
-          <span class="font-display font-bold text-lg leading-none">X</span>
-        </a>
-
-        <a href="https://www.reddit.com/u/gh9aravind_3000/s/VSYQ1NAKld" target="_blank" rel="noopener noreferrer" aria-label="Reddit"
-           class="social-btn social-reddit w-11 h-11 rounded-full flex items-center justify-center">
-          <i data-lucide="message-circle" class="w-[18px] h-[18px]"></i>
-        </a>
-
-        <a href="https://www.instagram.com/gh9aravind_3000?stkn=MWtxdWNvaGU2YXhvMg==" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-           class="social-btn social-instagram w-11 h-11 rounded-full flex items-center justify-center">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="5" ry="5"/>
-            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-          </svg>
-        </a>
-      </div>
-    </header>
-
-    <!-- ================= FILTER TABS ================= -->
-    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar mb-8 sm:mb-10 sm:justify-center px-1">
-      <button type="button" data-filter="all" class="filter-btn tab-active flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium">All Projects</button>
-      <button type="button" data-filter="apps" class="filter-btn flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium">📱 Apps</button>
-      <button type="button" data-filter="websites" class="filter-btn flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium">🌐 Websites</button>
-      <button type="button" data-filter="tools" class="filter-btn flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium">🛠️ Tools</button>
     </div>
 
-    <!-- ================= BENTO GRID ================= -->
-    <div id="bento-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
 
-      <!-- FEATURED / HERO CARD -->
-      <div class="project-card col-span-1 md:col-span-2 lg:col-span-2" data-category="apps">
-        <div class="relative rounded-[28px] h-full">
-          <div class="absolute inset-0 rounded-[28px] ring-spin-slow" style="background:conic-gradient(from 0deg, var(--cyan), var(--violet), var(--magenta), var(--amber), var(--cyan));"></div>
-          <div class="absolute inset-[1.5px] rounded-[26px] overflow-hidden flex flex-col p-6 sm:p-8" style="background:var(--deep);">
+    <!-- Name -->
 
-            <i data-lucide="layout-dashboard" class="absolute -right-6 -bottom-8 w-40 h-40 text-white/[0.03] pointer-events-none" stroke-width="1"></i>
+    <h2
+      class="font-display text-2xl font-semibold mb-2"
+    >
+      TelDrive
+    </h2>
 
-            <div class="relative flex items-start justify-between mb-5">
-              <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold" style="background:rgba(45,212,228,.12); border:1px solid rgba(45,212,228,.35); color:var(--cyan);">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Featured
-              </span>
-              <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style="background:linear-gradient(135deg,var(--cyan),var(--violet));">
-                <i data-lucide="layout-dashboard" class="w-7 h-7 text-white"></i>
-              </div>
-            </div>
 
-            <h3 class="relative font-display text-2xl sm:text-3xl font-semibold mb-2">NexaFlow</h3>
-            <p class="relative text-gray-400 text-sm sm:text-[15px] leading-relaxed mb-6 max-w-md">
-              Unifies tasks, notes, and your calendar into one adaptive workspace that reorganizes itself around your day.
-            </p>
+    <!-- Description -->
 
-            <div class="relative flex flex-wrap gap-2 mb-6">
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--cyan);"></span>Flutter</span>
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--violet);"></span>Firebase</span>
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--magenta);"></span>AI / ML</span>
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--amber);"></span>Real-time Sync</span>
-            </div>
-
-            <a href="#" target="_blank" rel="noopener noreferrer" class="cta-btn relative mt-auto inline-flex items-center justify-center gap-2 w-fit rounded-xl px-5 py-2.5 text-sm font-semibold">
-              Explore NexaFlow <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- QUICK STATS CARD -->
-      <div class="col-span-1">
-        <div class="glass-card backdrop-blur-xl h-full rounded-2xl p-6 flex flex-col justify-center gap-5">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(45,212,228,.1); border:1px solid rgba(45,212,228,.25);">
-              <i data-lucide="rocket" class="w-5 h-5" style="color:var(--cyan);"></i>
-            </div>
-            <div>
-              <p class="font-display text-2xl font-semibold leading-none"><span data-count-to="10">0</span>+</p>
-              <p class="text-xs text-gray-500 mt-1.5">Apps Shipped</p>
-            </div>
-          </div>
-          <div class="h-px" style="background:rgba(255,255,255,.08);"></div>
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(157,92,255,.1); border:1px solid rgba(157,92,255,.25);">
-              <i data-lucide="git-branch" class="w-5 h-5" style="color:var(--violet);"></i>
-            </div>
-            <div>
-              <p class="font-display text-2xl font-semibold leading-none"><span data-count-to="100">0</span>%</p>
-              <p class="text-xs text-gray-500 mt-1.5">Free &amp; Open Source</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TelDrive -->
-      <div class="project-card col-span-1" data-category="apps">
-        <a href="https://github.com/aravindrejidev/TelDrive" target="_blank" rel="noopener noreferrer" class="glass-card backdrop-blur-xl group relative flex flex-col h-full rounded-2xl p-6">
-          <div class="flex items-start justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#fb7185,#fb923c);">
-              <i data-lucide="mic" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="arrow-chip w-9 h-9 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#9ca3af;">
-              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <h3 class="font-display text-lg font-semibold mb-1.5">TelDrive</h3>
-          <p class="text-gray-400 text-sm leading-relaxed mb-4">A Google Drive-style Android app that uses a Telegram Bot as its storage backend. Files uploaded manually go to one primary Telegram channel; any number of additional Sync Links can each pair a device folder with its own Telegram channel for independent background auto-syncing </p>
-          <div class="flex flex-wrap gap-1.5 mt-auto">
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:#fb7185;"></span>Dart</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:#fb7185;"></span>Kotlin</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:#fb923c;"></span>Android</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--cyan);"></span>Drive</span>
-          </div>
-        </a>
-      </div>
-
-      <!-- SOLSTICE STUDIO -->
-      <div class="project-card col-span-1" data-category="websites">
-        <a href="#" target="_blank" rel="noopener noreferrer" class="glass-card backdrop-blur-xl group relative flex flex-col h-full rounded-2xl p-6">
-          <div class="flex items-start justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#a78bfa,#e879f9);">
-              <i data-lucide="globe" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="arrow-chip w-9 h-9 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#9ca3af;">
-              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <h3 class="font-display text-lg font-semibold mb-1.5">Solstice Studio</h3>
-          <p class="text-gray-400 text-sm leading-relaxed mb-4">A motion-driven portfolio and case-study site for a boutique creative agency.</p>
-          <div class="flex flex-wrap gap-1.5 mt-auto">
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:#a78bfa;"></span>Next.js</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:#e879f9;"></span>Tailwind</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--amber);"></span>Framer Motion</span>
-          </div>
-        </a>
-      </div>
-
-      <!-- PIXELPRUNE -->
-      <div class="project-card col-span-1" data-category="tools">
-        <a href="#" target="_blank" rel="noopener noreferrer" class="glass-card backdrop-blur-xl group relative flex flex-col h-full rounded-2xl p-6">
-          <div class="flex items-start justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#38bdf8,#2dd4e4);">
-              <i data-lucide="image" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="arrow-chip w-9 h-9 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#9ca3af;">
-              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <h3 class="font-display text-lg font-semibold mb-1.5">PixelPrune</h3>
-          <p class="text-gray-400 text-sm leading-relaxed mb-4">Compresses images up to 80% in the browser, before you ever hit upload.</p>
-          <div class="flex flex-wrap gap-1.5 mt-auto">
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:#38bdf8;"></span>JavaScript</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--cyan);"></span>WASM</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--violet);"></span>Sharp</span>
-          </div>
-        </a>
-      </div>
-
-      <!-- DEVPULSE CLI (wide) -->
-      <div class="project-card col-span-1 md:col-span-2 lg:col-span-2" data-category="tools">
-        <a href="#" target="_blank" rel="noopener noreferrer" class="glass-card backdrop-blur-xl group relative flex flex-col h-full rounded-2xl p-6">
-          <div class="flex items-start justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#34d399,#2dd4e4);">
-              <i data-lucide="terminal" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="arrow-chip w-9 h-9 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#9ca3af;">
-              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <h3 class="font-display text-lg font-semibold mb-1.5">DevPulse CLI</h3>
-          <p class="text-gray-400 text-sm leading-relaxed mb-3">Runs your build, lint, and deploy steps from one command, configured once per repo.</p>
-          <div class="rounded-lg px-3 py-2 mb-4 overflow-x-auto no-scrollbar" style="background:rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.08);">
-            <code class="text-[11px] whitespace-nowrap" style="font-family:ui-monospace,monospace; color:#6ee7b7;">$ devpulse run --optimize</code>
-          </div>
-          <div class="flex flex-wrap gap-1.5 mt-auto">
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:#34d399;"></span>Node.js</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--cyan);"></span>TypeScript</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--violet);"></span>npm</span>
-          </div>
-        </a>
-      </div>
-
-      <!-- LUMINA -->
-      <div class="project-card col-span-1" data-category="websites">
-        <a href="#" target="_blank" rel="noopener noreferrer" class="glass-card backdrop-blur-xl group relative flex flex-col h-full rounded-2xl p-6">
-          <div class="flex items-start justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--amber),#fb7185);">
-              <i data-lucide="palette" class="w-6 h-6 text-white"></i>
-            </div>
-            <div class="arrow-chip w-9 h-9 rounded-full flex items-center justify-center" style="background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#9ca3af;">
-              <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </div>
-          </div>
-          <h3 class="font-display text-lg font-semibold mb-1.5">Lumina</h3>
-          <p class="text-gray-400 text-sm leading-relaxed mb-4">Generates and remixes AI art from a prompt, right in the browser.</p>
-          <div class="flex flex-wrap gap-1.5 mt-auto">
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--amber);"></span>React</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:#fb7185;"></span>OpenAI API</span>
-            <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--violet);"></span>Tailwind</span>
-          </div>
-        </a>
-      </div>
-
-    </div>
-  </main>
-
-  <footer class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 pt-4 text-center">
-    <p class="text-xs text-gray-600">
-      <span class="inline-block w-1.5 h-1.5 rounded-full align-middle mr-1.5" style="background:#22c55e;"></span>
-      All systems nominal — built with late nights and coffee, 2026
+    <p
+      class="text-gray-400 text-sm leading-relaxed mb-5"
+    >
+      A Google Drive-style Android app that uses
+      a Telegram Bot as its storage backend.
+      Files can be uploaded to a primary Telegram
+      channel, while additional Sync Links can pair
+      device folders with separate Telegram channels
+      for independent background auto-syncing.
     </p>
-  </footer>
 
-  <script>
-    lucide.createIcons();
 
-    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    <!-- Tags -->
 
-    /* ---------- Filter tabs ---------- */
-    var filterBtns = document.querySelectorAll('.filter-btn');
-    var projectCards = document.querySelectorAll('.project-card[data-category]');
+    <div class="flex flex-wrap gap-1.5 mt-auto">
 
-    filterBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        filterBtns.forEach(function (b) { b.classList.remove('tab-active'); });
-        btn.classList.add('tab-active');
-        var filter = btn.getAttribute('data-filter');
+      <span class="tag-pill">
+        <span
+          class="w-1.5 h-1.5 rounded-full"
+          style="background:#fb7185;"
+        ></span>
+        Dart
+      </span>
 
-        projectCards.forEach(function (card) {
-          var isMatch = filter === 'all' || card.getAttribute('data-category') === filter;
-          clearTimeout(card._hideTimeout);
-          if (isMatch) {
-            card.style.display = '';
-            void card.offsetWidth; /* force reflow so the transition plays */
-            card.style.opacity = '1';
-            card.style.transform = 'scale(1)';
-          } else {
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.94)';
-            card._hideTimeout = setTimeout(function () { card.style.display = 'none'; }, 300);
-          }
-        });
-      });
+
+      <span class="tag-pill">
+        <span
+          class="w-1.5 h-1.5 rounded-full"
+          style="background:#fb7185;"
+        ></span>
+        Kotlin
+      </span>
+
+
+      <span class="tag-pill">
+        <span
+          class="w-1.5 h-1.5 rounded-full"
+          style="background:#fb923c;"
+        ></span>
+        Android
+      </span>
+
+
+      <span class="tag-pill">
+        <span
+          class="w-1.5 h-1.5 rounded-full"
+          style="background:var(--cyan);"
+        ></span>
+        Telegram
+      </span>
+
+    </div>
+
+
+    <!-- Open repo -->
+
+    <div
+      class="mt-6 inline-flex items-center gap-2 text-sm font-semibold"
+      style="color:#fb923c;"
+    >
+
+      View Repository
+
+      <i
+        data-lucide="github"
+        class="w-4 h-4"
+      ></i>
+
+    </div>
+
+  </a>
+
+</div>
+
+
+
+<!-- ================================================= -->
+<!-- SPECTRA -->
+<!-- ================================================= -->
+
+<div
+  class="project-card"
+  data-category="apps"
+>
+
+  <a
+    href="https://github.com/aravindrejidev/Spectra"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="glass-card backdrop-blur-xl group relative flex flex-col h-full rounded-[24px] p-6 sm:p-7"
+  >
+
+
+    <!-- Top -->
+
+    <div
+      class="flex items-start justify-between mb-5"
+    >
+
+      <!-- Logo -->
+
+      <div
+        class="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center shrink-0"
+        style="
+          background:
+          linear-gradient(
+            135deg,
+            var(--violet),
+            var(--cyan)
+          );
+
+          box-shadow:
+          0 10px 30px -10px rgba(157,92,255,.45);
+        "
+      >
+
+        <img
+          src="images/Spectra.png"
+          alt="Spectra Logo"
+          class="project-logo"
+        >
+
+      </div>
+
+
+      <!-- Arrow -->
+
+      <div
+        class="arrow-chip w-10 h-10 rounded-full flex items-center justify-center"
+        style="
+          background:rgba(255,255,255,.05);
+          border:1px solid rgba(255,255,255,.1);
+          color:#9ca3af;
+        "
+      >
+
+        <i
+          data-lucide="arrow-up-right"
+          class="w-4 h-4"
+        ></i>
+
+      </div>
+
+    </div>
+
+
+    <!-- Name -->
+
+    <h2
+      class="font-display text-2xl font-semibold mb-2"
+    >
+      Spectra
+    </h2>
+
+
+    <!-- Description -->
+
+    <p
+      class="text-gray-400 text-sm leading-relaxed mb-5"
+    >
+      A native Android audio analyser that gives
+      a detailed technical breakdown of an audio
+      file — including spectrogram, peak, RMS,
+      dynamic range, clipping detection and spectral
+      cutoff analysis for detecting likely fake-lossless
+      files.
+    </p>
+
+
+    <!-- Tags -->
+
+    <div class="flex flex-wrap gap-1.5 mt-auto">
+
+      <span class="tag-pill">
+        <span
+          class="w-1.5 h-1.5 rounded-full"
+          style="background:var(--violet);"
+        ></span>
+        Kotlin
+      </span>
+
+
+      <span class="tag-pill">
+        <span
+          class="w-1.5 h-1.5 rounded-full"
+          style="background:var(--cyan);"
+        ></span>
+        Jetpack Compose
+      </span>
+
+
+      <span class="tag-pill">
+        <span
+          class="w-1.5 h-1.5 rounded-full"
+          style="background:var(--magenta);"
+        ></span>
+        FFT / STFT
+      </span>
+
+
+      <span class="tag-pill">
+        <span
+          class="w-1.5 h-1.5 rounded-full"
+          style="background:var(--amber);"
+        ></span>
+        Android
+      </span>
+
+    </div>
+
+
+    <!-- Open repo -->
+
+    <div
+      class="mt-6 inline-flex items-center gap-2 text-sm font-semibold"
+      style="color:var(--cyan);"
+    >
+
+      View Repository
+
+      <i
+        data-lucide="github"
+        class="w-4 h-4"
+      ></i>
+
+    </div>
+
+  </a>
+
+</div>
+
+
+</div>
+
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer
+  class="text-center mt-12 sm:mt-16 pb-4"
+>
+
+  <div
+    class="h-px max-w-xs mx-auto mb-6"
+    style="background:rgba(255,255,255,.08);"
+  ></div>
+
+
+  <p class="text-xs text-gray-600">
+    Built with curiosity, code &amp; caffeine.
+  </p>
+
+
+  <p
+    class="font-display text-xs text-gray-700 mt-2"
+  >
+    © <span id="year"></span> Aravind
+  </p>
+
+</footer>
+
+
+</main>
+
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+/* Lucide icons */
+
+lucide.createIcons();
+
+
+/* Current year */
+
+document.getElementById("year").textContent =
+  new Date().getFullYear();
+
+
+/* Project filtering */
+
+const filterButtons =
+  document.querySelectorAll("[data-filter]");
+
+const projects =
+  document.querySelectorAll(".project-card");
+
+
+filterButtons.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    const filter =
+      button.dataset.filter;
+
+
+    /* Active button */
+
+    filterButtons.forEach(btn => {
+
+      btn.classList.remove("tab-active");
+
     });
 
-    /* ---------- Count-up stats ---------- */
-    var counters = document.querySelectorAll('[data-count-to]');
+    button.classList.add("tab-active");
 
-    function animateCounter(el) {
-      var target = parseInt(el.getAttribute('data-count-to'), 10);
-      if (prefersReducedMotion) {
-        el.textContent = target;
-        return;
-      }
-      var duration = 1100;
-      var startTime = null;
-      function tick(now) {
-        if (!startTime) startTime = now;
-        var progress = Math.min((now - startTime) / duration, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        el.textContent = Math.round(eased * target);
-        if (progress < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
 
-    if ('IntersectionObserver' in window) {
-      var counterObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            animateCounter(entry.target);
-            counterObserver.unobserve(entry.target);
-          }
+    /* Filter projects */
+
+    projects.forEach(project => {
+
+      const category =
+        project.dataset.category;
+
+
+      if(
+        filter === "all" ||
+        category === filter
+      ){
+
+        project.style.display = "";
+
+        requestAnimationFrame(() => {
+
+          project.style.opacity = "1";
+          project.style.transform = "translateY(0)";
+
         });
-      }, { threshold: 0.4 });
-      counters.forEach(function (el) { counterObserver.observe(el); });
-    } else {
-      counters.forEach(function (el) { animateCounter(el); });
-    }
-  </script>
+
+      }else{
+
+        project.style.opacity = "0";
+        project.style.transform = "translateY(8px)";
+
+        setTimeout(() => {
+
+          project.style.display = "none";
+
+        },300);
+
+      }
+
+    });
+
+  });
+
+});
+
+</script>
+
 </body>
 </html>
