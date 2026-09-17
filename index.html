@@ -278,8 +278,8 @@
             <i data-lucide="rocket" class="w-5 h-5" style="color:var(--cyan);"></i>
           </div>
           <div>
-            <p class="font-display text-2xl font-semibold leading-none"><span data-count-to="10">0</span>+</p>
-            <p class="text-xs text-gray-500 mt-1.5">Apps Shipped</p>
+            <p class="font-display text-2xl font-semibold leading-none"><span id="project-count-stat" data-count-to="0">0</span></p>
+            <p class="text-xs text-gray-500 mt-1.5">Projects Shipped</p>
           </div>
         </div>
         <div class="hidden sm:block h-10 w-px" style="background:rgba(255,255,255,.08);"></div>
@@ -307,6 +307,16 @@
     lucide.createIcons();
 
     var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---------- Auto-detect live project count ---------- */
+    /* Counts the actual .project-card elements in the grid, so this stat   */
+    /* never goes stale — add or remove a project card above and this      */
+    /* number updates itself, no manual editing needed.                    */
+    var projectCountEl = document.getElementById('project-count-stat');
+    if (projectCountEl) {
+      var liveProjectCount = document.querySelectorAll('.project-card[data-category]').length;
+      projectCountEl.setAttribute('data-count-to', liveProjectCount);
+    }
 
     /* ---------- Filter tabs ---------- */
     var filterBtns = document.querySelectorAll('.filter-btn');
