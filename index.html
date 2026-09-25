@@ -135,7 +135,7 @@
 
   <main class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8">
 
-    <!-- ================= PROFILE HEADER ================= -->
+    <!-- ================= PROFILE HEADER (filled in by renderProfile) ================= -->
     <header class="flex flex-col items-center text-center mb-10 sm:mb-14">
 
       <div class="relative mb-5">
@@ -143,7 +143,7 @@
           <div class="absolute inset-0 rounded-full ring-spin" style="background:conic-gradient(from 0deg, var(--cyan), var(--violet), var(--magenta), var(--amber), var(--cyan)); box-shadow:0 0 30px -6px rgba(45,212,228,.55);"></div>
           <div class="absolute inset-[3px] rounded-full" style="background:var(--void);"></div>
           <div class="absolute inset-[6px] rounded-full overflow-hidden flex items-center justify-center">
-            <img src="images/profile.png" alt="Profile photo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+            <img src="profile.jpg" alt="Profile photo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
             <div class="w-full h-full items-center justify-center" style="display:none; background:linear-gradient(135deg,var(--cyan),var(--violet) 55%,var(--magenta));">
               <i data-lucide="rocket" class="w-9 h-9 text-white"></i>
             </div>
@@ -155,29 +155,25 @@
         </span>
       </div>
 
-      <h1 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight">Aravind</h1>
-      <p class="text-sm text-gray-500 mt-1">@aravind_3000</p>
+      <h1 id="profile-name" class="font-display text-3xl sm:text-4xl font-semibold tracking-tight"></h1>
+      <p id="profile-handle" class="text-sm text-gray-500 mt-1"></p>
 
-      <p class="mt-4 max-w-md text-[15px] sm:text-base text-gray-300 leading-relaxed">
-        App Creator &amp; Web Builder | Crafting Next-Gen Digital Products 🚀
-      </p>
+      <p id="profile-tagline" class="mt-4 max-w-md text-[15px] sm:text-base text-gray-300 leading-relaxed"></p>
 
-      <div class="badge-pulse mt-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm" style="border:1px solid rgba(74,222,128,.3); background:rgba(74,222,128,.08); color:#d13f41;">
-        🔴 Currently I'am little bit of busy 
-      </div>
+      <div id="profile-status" class="badge-pulse mt-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs sm:text-sm" style="border:1px solid rgba(74,222,128,.3); background:rgba(74,222,128,.08); color:#86efac;"></div>
 
       <div class="flex items-center gap-3 mt-6">
-        <a href="https://x.com/Aravind_3000" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"
+        <a id="social-x" href="#" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)"
            class="social-btn social-x w-11 h-11 rounded-full flex items-center justify-center">
           <span class="font-display font-bold text-lg leading-none">X</span>
         </a>
 
-        <a href="https://www.reddit.com/u/gh9aravind_3000/s/VSYQ1NAKld" target="_blank" rel="noopener noreferrer" aria-label="Reddit"
+        <a id="social-reddit" href="#" target="_blank" rel="noopener noreferrer" aria-label="Reddit"
            class="social-btn social-reddit w-11 h-11 rounded-full flex items-center justify-center">
           <i data-lucide="message-circle" class="w-[18px] h-[18px]"></i>
         </a>
 
-        <a href="https://www.instagram.com/gh9aravind_3000?stkn=MWtxdWNvaGU2YXhvMg==" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+        <a id="social-instagram" href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram"
            class="social-btn social-instagram w-11 h-11 rounded-full flex items-center justify-center">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="5" ry="5"/>
@@ -196,76 +192,8 @@
       <button type="button" data-filter="tools" class="filter-btn flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium">🛠️ Tools</button>
     </div>
 
-    <!-- ================= PROJECTS ================= -->
-    <div id="bento-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-      <!-- TELDRIVE -->
-      <div class="project-card" data-category="apps">
-        <div class="relative rounded-[28px] p-[1.5px]">
-          <div class="absolute inset-0 rounded-[28px] ring-spin-slow" style="background:conic-gradient(from 0deg, var(--cyan), var(--violet), var(--magenta), var(--amber), var(--cyan));"></div>
-          <div class="relative rounded-[26px] overflow-hidden flex flex-col p-6 sm:p-8" style="background:var(--deep);">
-
-            <i data-lucide="cloud" class="absolute -right-6 -bottom-8 w-40 h-40 text-white/[0.03] pointer-events-none" stroke-width="1"></i>
-
-            <div class="relative w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden mb-5 shrink-0" style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);">
-              <img src="images/TelDrive.png" alt="TelDrive logo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-              <div class="w-full h-full items-center justify-center" style="display:none; background:linear-gradient(135deg,var(--cyan),var(--violet));">
-                <i data-lucide="cloud" class="w-8 h-8 text-white"></i>
-              </div>
-            </div>
-
-            <h3 class="relative font-display text-2xl sm:text-3xl font-semibold mb-2">TelDrive</h3>
-            <p class="relative text-gray-400 text-sm sm:text-[15px] leading-relaxed mb-6 max-w-md">
-              Uses a Telegram bot as unlimited cloud storage, with per-folder Sync Links that auto-backup in the background.
-            </p>
-
-            <div class="relative flex flex-wrap gap-2 mb-6">
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--cyan);"></span>Flutter</span>
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--violet);"></span>Telegram API</span>
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--magenta);"></span>SQLite</span>
-            </div>
-
-            <a href="https://github.com/aravindrejidev/TelDrive" target="_blank" rel="noopener noreferrer" class="cta-btn relative mt-auto inline-flex items-center justify-center gap-2 w-fit rounded-xl px-5 py-2.5 text-sm font-semibold">
-              View on GitHub <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- SPECTRA -->
-      <div class="project-card" data-category="apps">
-        <div class="relative rounded-[28px] p-[1.5px]">
-          <div class="absolute inset-0 rounded-[28px] ring-spin-slow" style="background:conic-gradient(from 0deg, var(--cyan), var(--violet), var(--magenta), var(--amber), var(--cyan));"></div>
-          <div class="relative rounded-[26px] overflow-hidden flex flex-col p-6 sm:p-8" style="background:var(--deep);">
-
-            <i data-lucide="activity" class="absolute -right-6 -bottom-8 w-40 h-40 text-white/[0.03] pointer-events-none" stroke-width="1"></i>
-
-            <div class="relative w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden mb-5 shrink-0" style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);">
-              <img src="images/spectra.png" alt="Spectra logo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-              <div class="w-full h-full items-center justify-center" style="display:none; background:linear-gradient(135deg,var(--violet),var(--magenta));">
-                <i data-lucide="activity" class="w-8 h-8 text-white"></i>
-              </div>
-            </div>
-
-            <h3 class="relative font-display text-2xl sm:text-3xl font-semibold mb-2">Spectra</h3>
-            <p class="relative text-gray-400 text-sm sm:text-[15px] leading-relaxed mb-6 max-w-md">
-              Breaks down any audio file on-device — spectrogram, clipping, and a heuristic that flags fake-lossless FLACs.
-            </p>
-
-            <div class="relative flex flex-wrap gap-2 mb-6">
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--violet);"></span>Kotlin</span>
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--magenta);"></span>Jetpack Compose</span>
-              <span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--amber);"></span>On-device DSP</span>
-            </div>
-
-            <a href="https://github.com/aravindrejidev/Spectra" target="_blank" rel="noopener noreferrer" class="cta-btn relative mt-auto inline-flex items-center justify-center gap-2 w-fit rounded-xl px-5 py-2.5 text-sm font-semibold">
-              View on GitHub <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-
-    </div>
+    <!-- ================= PROJECTS (filled in by renderProjects) ================= -->
+    <div id="bento-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
 
     <!-- Empty state, shown by JS when a filter matches nothing yet -->
     <div id="empty-state" class="hidden text-center py-16">
@@ -291,7 +219,7 @@
             <i data-lucide="git-branch" class="w-5 h-5" style="color:var(--violet);"></i>
           </div>
           <div>
-            <p class="font-display text-2xl font-semibold leading-none"><span data-count-to="100">0</span>%</p>
+            <p class="font-display text-2xl font-semibold leading-none"><span id="open-source-stat" data-count-to="100">0</span>%</p>
             <p class="text-xs text-gray-500 mt-1.5">Free &amp; Open Source</p>
           </div>
         </div>
@@ -306,20 +234,143 @@
     </p>
   </footer>
 
+  <!-- ================= SITE DATA ================= -->
+  <!-- This is the ONLY block the admin panel edits. Everything above renders from it. -->
+  <script id="site-data" type="application/json">
+{
+  "profile": {
+    "name": "Aravind",
+    "handle": "@aravind_3000",
+    "tagline": "App Creator & Web Builder | Crafting Next-Gen Digital Products 🚀",
+    "status": "🟢 Currently Building Something Cool",
+    "socials": {
+      "x": "https://x.com/Aravind_3000",
+      "reddit": "https://www.reddit.com/u/gh9aravind_3000/s/VSYQ1NAKld",
+      "instagram": "https://www.instagram.com/gh9aravind_3000?stkn=MWtxdWNvaGU2YXhvMg=="
+    }
+  },
+  "projects": [
+    {
+      "name": "TelDrive",
+      "category": "apps",
+      "description": "Uses a Telegram bot as unlimited cloud storage, with per-folder Sync Links that auto-backup in the background.",
+      "tags": ["Flutter", "Telegram API", "SQLite"],
+      "logo": "TelDrive.png",
+      "icon": "cloud",
+      "link": "https://github.com/aravindrejidev/TelDrive",
+      "linkText": "View on GitHub"
+    },
+    {
+      "name": "Spectra",
+      "category": "apps",
+      "description": "Breaks down any audio file on-device \u2014 spectrogram, clipping, and a heuristic that flags fake-lossless FLACs.",
+      "tags": ["Kotlin", "Jetpack Compose", "On-device DSP"],
+      "logo": "Spectra.png",
+      "icon": "activity",
+      "link": "https://github.com/aravindrejidev/Spectra",
+      "linkText": "View on GitHub"
+    }
+  ],
+  "stats": {
+    "openSourcePercent": 100
+  }
+}
+  </script>
+
   <script>
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderProfile(profile) {
+      profile = profile || {};
+      var nameEl = document.getElementById('profile-name');
+      var handleEl = document.getElementById('profile-handle');
+      var taglineEl = document.getElementById('profile-tagline');
+      var statusEl = document.getElementById('profile-status');
+      if (nameEl) nameEl.textContent = profile.name || '';
+      if (handleEl) handleEl.textContent = profile.handle || '';
+      if (taglineEl) taglineEl.textContent = profile.tagline || '';
+      if (statusEl) statusEl.textContent = profile.status || '';
+
+      var socials = profile.socials || {};
+      var xEl = document.getElementById('social-x');
+      var redditEl = document.getElementById('social-reddit');
+      var igEl = document.getElementById('social-instagram');
+      if (xEl && socials.x) xEl.href = socials.x;
+      if (redditEl && socials.reddit) redditEl.href = socials.reddit;
+      if (igEl && socials.instagram) igEl.href = socials.instagram;
+
+      if (profile.name) document.title = profile.name + ' — App Creator & Web Builder';
+    }
+
+    function renderProjects(projects) {
+      projects = projects || [];
+      var GRADIENTS = [
+        ['#2dd4e4', '#9d5cff'],
+        ['#9d5cff', '#ff4f9a'],
+        ['#ff4f9a', '#ffc24b'],
+        ['#ffc24b', '#2dd4e4']
+      ];
+      var TAG_COLORS = ['var(--cyan)', 'var(--violet)', 'var(--magenta)', 'var(--amber)'];
+
+      var grid = document.getElementById('bento-grid');
+      if (!grid) return;
+
+      var html = projects.map(function (p, i) {
+        var grad = GRADIENTS[i % GRADIENTS.length];
+        var icon = escapeHtml(p.icon || 'box');
+        var tagsHtml = (p.tags || []).map(function (tag, ti) {
+          return '<span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:' + TAG_COLORS[ti % TAG_COLORS.length] + ';"></span>' + escapeHtml(tag) + '</span>';
+        }).join('');
+
+        return (
+          '<div class="project-card" data-category="' + escapeHtml(p.category || 'apps') + '">' +
+            '<div class="relative rounded-[28px] p-[1.5px]">' +
+              '<div class="absolute inset-0 rounded-[28px] ring-spin-slow" style="background:conic-gradient(from 0deg, var(--cyan), var(--violet), var(--magenta), var(--amber), var(--cyan));"></div>' +
+              '<div class="relative rounded-[26px] overflow-hidden flex flex-col p-6 sm:p-8" style="background:var(--deep);">' +
+                '<i data-lucide="' + icon + '" class="absolute -right-6 -bottom-8 w-40 h-40 text-white/[0.03] pointer-events-none" stroke-width="1"></i>' +
+                '<div class="relative w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden mb-5 shrink-0" style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);">' +
+                  '<img src="' + escapeHtml(p.logo || '') + '" alt="' + escapeHtml(p.name || '') + ' logo" class="w-full h-full object-cover" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' +
+                  '<div class="w-full h-full items-center justify-center" style="display:none; background:linear-gradient(135deg,' + grad[0] + ',' + grad[1] + ');">' +
+                    '<i data-lucide="' + icon + '" class="w-8 h-8 text-white"></i>' +
+                  '</div>' +
+                '</div>' +
+                '<h3 class="relative font-display text-2xl sm:text-3xl font-semibold mb-2">' + escapeHtml(p.name || '') + '</h3>' +
+                '<p class="relative text-gray-400 text-sm sm:text-[15px] leading-relaxed mb-6 max-w-md">' + escapeHtml(p.description || '') + '</p>' +
+                '<div class="relative flex flex-wrap gap-2 mb-6">' + tagsHtml + '</div>' +
+                '<a href="' + escapeHtml(p.link || '#') + '" target="_blank" rel="noopener noreferrer" class="cta-btn relative mt-auto inline-flex items-center justify-center gap-2 w-fit rounded-xl px-5 py-2.5 text-sm font-semibold">' +
+                  escapeHtml(p.linkText || 'View Project') + ' <i data-lucide="arrow-up-right" class="w-4 h-4"></i>' +
+                '</a>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+
+      grid.innerHTML = html;
+    }
+
+    /* ---------- Load data & render the page ---------- */
+    var DATA = JSON.parse(document.getElementById('site-data').textContent);
+    renderProfile(DATA.profile);
+    renderProjects(DATA.projects);
+
+    /* Icons must init AFTER the dynamic content above exists in the DOM */
     lucide.createIcons();
 
     var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* ---------- Auto-detect live project count ---------- */
-    /* Counts the actual .project-card elements in the grid, so this stat   */
-    /* never goes stale — add or remove a project card above and this      */
-    /* number updates itself, no manual editing needed.                    */
+    /* Stats driven straight from the data — never go stale */
     var projectCountEl = document.getElementById('project-count-stat');
-    if (projectCountEl) {
-      var liveProjectCount = document.querySelectorAll('.project-card[data-category]').length;
-      projectCountEl.setAttribute('data-count-to', liveProjectCount);
-    }
+    if (projectCountEl) projectCountEl.setAttribute('data-count-to', DATA.projects.length);
+    var openSourceEl = document.getElementById('open-source-stat');
+    if (openSourceEl && DATA.stats) openSourceEl.setAttribute('data-count-to', DATA.stats.openSourcePercent);
 
     /* ---------- Filter tabs ---------- */
     var filterBtns = document.querySelectorAll('.filter-btn');
