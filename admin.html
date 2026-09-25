@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Admin Panel — Link-in-Bio Hub</title>
+<meta name="robots" content="noindex, nofollow" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { fontFamily: {
+      display: ['"Chakra Petch"', 'sans-serif'],
+      sans: ['"Manrope"', 'sans-serif']
+    } } }
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+  :root{
+    --void:#07090e; --deep:#0c1018;
+    --cyan:#2dd4e4; --violet:#9d5cff; --magenta:#ff4f9a; --amber:#ffc24b;
+  }
+  html,body{ max-width:100%; }
+  body{ background:var(--void); font-family:'Manrope',sans-serif; color:#fff; }
+  .font-display{ font-family:'Chakra Petch',sans-serif; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.14); border-radius:999px; }
+
+  /* ---- form elements ---- */
+  .field-label{ display:block; font-size:.72rem; color:#9ca3af; margin-bottom:.35rem; font-weight:500; text-transform:uppercase; letter-spacing:.03em; }
+  .field-input, .field-select, .field-textarea{
+    width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.12); border-radius:.6rem;
+    padding:.55rem .75rem; color:#fff; font-size:.875rem; font-family:'Manrope',sans-serif;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .field-select{ color-scheme: dark; }
+  .field-input:focus, .field-select:focus, .field-textarea:focus{ outline:none; border-color:var(--cyan); background:rgba(255,255,255,.06); }
+  .field-textarea{ resize:vertical; min-height:4.2rem; }
+  .field-input::placeholder, .field-textarea::placeholder{ color:#5b6472; }
+
+  .btn-primary{ background:linear-gradient(90deg,var(--cyan),var(--violet)); color:var(--void); font-weight:600; border-radius:.7rem; padding:.7rem 1.4rem; transition:transform .2s ease, box-shadow .2s ease; }
+  .btn-primary:hover{ transform:scale(1.02); box-shadow:0 0 26px -6px rgba(45,212,228,.55); }
+  .btn-primary:disabled{ opacity:.4; pointer-events:none; }
+  .btn-secondary{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); color:#e5e7eb; border-radius:.6rem; padding:.55rem 1rem; font-size:.85rem; transition:all .2s ease; }
+  .btn-secondary:hover{ background:rgba(255,255,255,.1); }
+  .btn-danger{ background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); color:#fca5a5; border-radius:.5rem; padding:.35rem .65rem; font-size:.75rem; transition:all .2s ease; white-space:nowrap; }
+  .btn-danger:hover{ background:rgba(239,68,68,.2); }
+  .btn-icon{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:#e5e7eb; border-radius:.5rem; padding:.35rem; transition:all .2s ease; }
+  .btn-icon:hover{ background:rgba(255,255,255,.14); }
+  .btn-icon:disabled{ opacity:.3; pointer-events:none; }
+
+  .panel{ background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:1.25rem; }
+  .project-editor-card{ background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.09); border-radius:1rem; padding:1.1rem; }
+
+  .tag-pill-edit{ display:inline-flex; align-items:center; gap:.35rem; font-size:.72rem; padding:.28rem .3rem .28rem .6rem; border-radius:9999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:#e5e7eb; }
+  .tag-pill-edit button{ width:16px; height:16px; display:flex; align-items:center; justify-content:center; border-radius:9999px; opacity:.6; }
+  .tag-pill-edit button:hover{ opacity:1; background:rgba(255,255,255,.15); }
+
+  /* ---- preview (mirrors the live site's card styles) ---- */
+  .tag-pill{ display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; padding:.3rem .65rem; border-radius:9999px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); color:#cbd5e1; white-space:nowrap; }
+  @keyframes spin360{ from{ transform:rotate(0deg) } to{ transform:rotate(360deg) } }
+  .ring-spin-slow{ animation:spin360 12s linear infinite; }
+  .cta-btn{ background:linear-gradient(90deg,var(--cyan),var(--violet)); color:var(--void); }
+  #preview-scale{ transform-origin: top left; }
+
+  .status-bar{ position:sticky; top:0; z-index:30; backdrop-filter:blur(16px); background:rgba(7,9,14,.85); border-bottom:1px solid rgba(255,255,255,.08); }
+</style>
+</head>
+<body class="antialiased">
+
+  <!-- ================= TOP STATUS BAR ================= -->
+  <div class="status-bar px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2 min-w-0">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:linear-gradient(135deg,var(--cyan),var(--violet));">
+        <i data-lucide="settings" class="w-4 h-4 text-white"></i>
+      </div>
+      <div class="min-w-0">
+        <p class="font-display text-sm font-semibold leading-tight">Admin Panel</p>
+        <p id="status-text" class="text-[11px] text-gray-500 truncate">Loading…</p>
+      </div>
+    </div>
+    <button id="download-btn" class="btn-primary text-sm flex items-center gap-1.5 shrink-0" disabled>
+      <i data-lucide="download" class="w-4 h-4"></i> Download index.html
+    </button>
+  </div>
+
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 pb-24">
+
+    <!-- ================= HOW THIS WORKS ================= -->
+    <details class="panel p-4 mb-6 text-sm text-gray-400">
+      <summary class="cursor-pointer text-gray-200 font-medium">How this works (read once)</summary>
+      <ol class="list-decimal list-inside mt-3 space-y-1.5">
+        <li><strong class="text-gray-200">Load:</strong> upload the <code class="text-cyan-300">index.html</code> that's currently live on your GitHub repo.</li>
+        <li><strong class="text-gray-200">Edit:</strong> change your profile, add/remove projects, edit tech tags — the preview below updates instantly.</li>
+        <li><strong class="text-gray-200">Download:</strong> click "Download index.html" to get the updated file.</li>
+        <li><strong class="text-gray-200">Upload:</strong> replace the old <code class="text-cyan-300">index.html</code> in your GitHub repo with this new one (and upload any new logo images you referenced). GitHub Pages updates within a minute.</li>
+      </ol>
+      <p class="mt-3 text-[13px]">This tool doesn't connect to GitHub or store anything anywhere online — it only reads the file you upload and prepares a new one for you to download. Nothing changes on your live site until you re-upload the downloaded file yourself. Your in-progress edits are auto-saved in this browser, so refreshing won't lose your work.</p>
+    </details>
+
+    <!-- ================= LOAD SECTION ================= -->
+    <div id="load-section" class="panel p-5 mb-6">
+      <p class="font-display font-semibold mb-1">Load your site</p>
+      <p class="text-sm text-gray-500 mb-4">Upload the index.html currently in your GitHub repo to start editing it.</p>
+      <div class="flex flex-wrap items-center gap-3">
+        <label class="btn-primary text-sm cursor-pointer flex items-center gap-1.5">
+          <i data-lucide="upload" class="w-4 h-4"></i> Upload index.html
+          <input type="file" id="file-upload" accept=".html,text/html" class="hidden">
+        </label>
+        <button id="clear-draft-btn" class="btn-secondary text-sm">Clear saved draft &amp; start over</button>
+      </div>
+    </div>
+
+    <!-- ================= EDITOR (hidden until a file is loaded) ================= -->
+    <div id="editor-section" class="hidden">
+
+      <!-- Profile -->
+      <div class="panel p-5 mb-6">
+        <p class="font-display font-semibold mb-4 flex items-center gap-2"><i data-lucide="circle-user" class="w-4 h-4" style="color:var(--cyan);"></i> Profile</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div><label class="field-label">Name</label><input class="field-input" id="edit-name"></div>
+          <div><label class="field-label">Handle</label><input class="field-input" id="edit-handle" placeholder="@yourhandle"></div>
+        </div>
+        <div class="mt-3"><label class="field-label">Tagline</label><input class="field-input" id="edit-tagline"></div>
+        <div class="mt-3"><label class="field-label">Status badge text</label><input class="field-input" id="edit-status"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+          <div><label class="field-label">X (Twitter) URL</label><input class="field-input" id="edit-social-x"></div>
+          <div><label class="field-label">Reddit URL</label><input class="field-input" id="edit-social-reddit"></div>
+          <div><label class="field-label">Instagram URL</label><input class="field-input" id="edit-social-instagram"></div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="panel p-5 mb-6">
+        <p class="font-display font-semibold mb-4 flex items-center gap-2"><i data-lucide="chart-bar" class="w-4 h-4" style="color:var(--violet);"></i> Stats strip</p>
+        <p class="text-xs text-gray-500 mb-3">"Projects Shipped" counts itself automatically from the list below — nothing to edit there.</p>
+        <div class="max-w-xs"><label class="field-label">Open Source %</label><input type="number" min="0" max="100" class="field-input" id="edit-open-source"></div>
+      </div>
+
+      <!-- Projects -->
+      <div class="panel p-5 mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <p class="font-display font-semibold flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4" style="color:var(--magenta);"></i> Projects</p>
+          <button id="add-project-btn" class="btn-secondary text-sm flex items-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> Add project</button>
+        </div>
+        <div id="projects-editor" class="space-y-4"></div>
+      </div>
+
+      <!-- Live preview -->
+      <div class="panel p-5 mb-6">
+        <p class="font-display font-semibold mb-4 flex items-center gap-2"><i data-lucide="eye" class="w-4 h-4" style="color:var(--amber);"></i> Live preview</p>
+        <div id="preview-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+        <p id="preview-empty-hint" class="hidden text-sm text-gray-500 text-center py-8">No projects yet — add one above.</p>
+      </div>
+
+      <button id="download-btn-bottom" class="btn-primary w-full flex items-center justify-center gap-2">
+        <i data-lucide="download" class="w-4 h-4"></i> Download Updated index.html
+      </button>
+    </div>
+  </main>
+
+  <script>
+    var ICON_OPTIONS = ['rocket','cloud','activity','terminal','globe','database','server','shield','zap','brain','gamepad-2','mic','paint-bucket','image','git-branch','layout-dashboard','message-circle','inbox','audio-waveform','box','star','layers-2'];
+    var GRADIENTS = [['#2dd4e4','#9d5cff'],['#9d5cff','#ff4f9a'],['#ff4f9a','#ffc24b'],['#ffc24b','#2dd4e4']];
+    var TAG_COLORS = ['var(--cyan)','var(--violet)','var(--magenta)','var(--amber)'];
+    var DATA_BLOCK_RE = /(<script id="site-data" type="application\/json">)([\s\S]*?)(<\/script>)/;
+
+    var siteData = null;
+    var originalFileText = null;
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function setStatus(msg) { document.getElementById('status-text').textContent = msg; }
+
+    /* ---------- persistence ---------- */
+    function saveDraft() {
+      try {
+        localStorage.setItem('admin_site_data', JSON.stringify(siteData));
+        if (originalFileText) localStorage.setItem('admin_original_file', originalFileText);
+      } catch (e) { /* ignore quota/availability errors */ }
+    }
+    function loadDraft() {
+      try {
+        var d = localStorage.getItem('admin_site_data');
+        var f = localStorage.getItem('admin_original_file');
+        if (d && f) { siteData = JSON.parse(d); originalFileText = f; return true; }
+      } catch (e) {}
+      return false;
+    }
+    function clearDraft() {
+      try { localStorage.removeItem('admin_site_data'); localStorage.removeItem('admin_original_file'); } catch (e) {}
+      siteData = null; originalFileText = null;
+      document.getElementById('editor-section').classList.add('hidden');
+      document.getElementById('download-btn').disabled = true;
+      setStatus('Upload your current index.html to get started.');
+    }
+
+    /* ---------- loading an uploaded file ---------- */
+    function loadFromFileText(text) {
+      var match = text.match(DATA_BLOCK_RE);
+      if (!match) {
+        alert('Could not find the site data block in this file.\n\nMake sure you\'re uploading the index.html Claude generated for your link-in-bio site (it needs the <script id="site-data"> block inside it).');
+        return;
+      }
+      var parsed;
+      try { parsed = JSON.parse(match[2]); }
+      catch (err) { alert('This file\'s data block could not be read:\n' + err.message); return; }
+
+      siteData = parsed;
+      siteData.profile = siteData.profile || {};
+      siteData.profile.socials = siteData.profile.socials || {};
+      siteData.projects = siteData.projects || [];
+      siteData.stats = siteData.stats || { openSourcePercent: 100 };
+      originalFileText = text;
+
+      saveDraft();
+      renderAll();
+      document.getElementById('editor-section').classList.remove('hidden');
+      document.getElementById('download-btn').disabled = false;
+      setStatus('Loaded — ' + siteData.projects.length + ' project(s) for ' + (siteData.profile.name || 'your profile') + '.');
+    }
+
+    document.getElementById('file-upload').addEventListener('change', function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (evt) { loadFromFileText(evt.target.result); };
+      reader.onerror = function () { alert('Could not read that file.'); };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('clear-draft-btn').addEventListener('click', function () {
+      if (confirm('This clears your saved draft in this browser. Your live site is not affected. Continue?')) clearDraft();
+    });
+
+    /* ---------- rendering the editor ---------- */
+    function renderAll() {
+      renderProfileEditor();
+      renderProjectsEditor();
+      renderPreview();
+    }
+
+    function renderProfileEditor() {
+      document.getElementById('edit-name').value = siteData.profile.name || '';
+      document.getElementById('edit-handle').value = siteData.profile.handle || '';
+      document.getElementById('edit-tagline').value = siteData.profile.tagline || '';
+      document.getElementById('edit-status').value = siteData.profile.status || '';
+      document.getElementById('edit-social-x').value = siteData.profile.socials.x || '';
+      document.getElementById('edit-social-reddit').value = siteData.profile.socials.reddit || '';
+      document.getElementById('edit-social-instagram').value = siteData.profile.socials.instagram || '';
+      document.getElementById('edit-open-source').value = siteData.stats.openSourcePercent || 0;
+    }
+
+    [['edit-name','name'],['edit-handle','handle'],['edit-tagline','tagline'],['edit-status','status']].forEach(function (pair) {
+      document.getElementById(pair[0]).addEventListener('input', function (e) {
+        siteData.profile[pair[1]] = e.target.value; saveDraft(); renderPreview();
+      });
+    });
+    [['edit-social-x','x'],['edit-social-reddit','reddit'],['edit-social-instagram','instagram']].forEach(function (pair) {
+      document.getElementById(pair[0]).addEventListener('input', function (e) {
+        siteData.profile.socials[pair[1]] = e.target.value; saveDraft();
+      });
+    });
+    document.getElementById('edit-open-source').addEventListener('input', function (e) {
+      siteData.stats.openSourcePercent = parseInt(e.target.value, 10) || 0; saveDraft(); renderPreview();
+    });
+
+    function iconOptionsHtml(selected) {
+      return ICON_OPTIONS.map(function (ic) {
+        return '<option value="' + ic + '"' + (selected === ic ? ' selected' : '') + '>' + ic + '</option>';
+      }).join('');
+    }
+
+    function renderProjectsEditor() {
+      var container = document.getElementById('projects-editor');
+      if (siteData.projects.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 text-center py-6">No projects yet. Click "Add project" above.</p>';
+        return;
+      }
+      container.innerHTML = siteData.projects.map(function (p, i) {
+        var tagsHtml = (p.tags || []).map(function (t, ti) {
+          return '<span class="tag-pill-edit">' + escapeHtml(t) +
+            '<button type="button" data-action="remove-tag" data-tag-index="' + ti + '">&times;</button></span>';
+        }).join('');
+
+        return (
+          '<div class="project-editor-card" data-index="' + i + '">' +
+            '<div class="flex items-center justify-between mb-4">' +
+              '<span class="text-xs text-gray-500 font-mono">Project #' + (i + 1) + '</span>' +
+              '<div class="flex gap-1.5">' +
+                '<button type="button" class="btn-icon" data-action="move-up" title="Move up"' + (i === 0 ? ' disabled' : '') + '><i data-lucide="chevron-up" class="w-4 h-4"></i></button>' +
+                '<button type="button" class="btn-icon" data-action="move-down" title="Move down"' + (i === siteData.projects.length - 1 ? ' disabled' : '') + '><i data-lucide="chevron-down" class="w-4 h-4"></i></button>' +
+                '<button type="button" class="btn-danger" data-action="delete">Remove</button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">' +
+              '<div><label class="field-label">Project name</label><input class="field-input" data-field="name" value="' + escapeHtml(p.name || '') + '"></div>' +
+              '<div><label class="field-label">Category</label><select class="field-select" data-field="category">' +
+                '<option value="apps"' + (p.category === 'apps' ? ' selected' : '') + '>📱 Apps</option>' +
+                '<option value="websites"' + (p.category === 'websites' ? ' selected' : '') + '>🌐 Websites</option>' +
+                '<option value="tools"' + (p.category === 'tools' ? ' selected' : '') + '>🛠️ Tools</option>' +
+              '</select></div>' +
+            '</div>' +
+            '<div class="mb-3"><label class="field-label">Description (one line works best)</label><textarea class="field-textarea" data-field="description" rows="2">' + escapeHtml(p.description || '') + '</textarea></div>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">' +
+              '<div><label class="field-label">Logo filename</label><input class="field-input" data-field="logo" placeholder="e.g. MyApp.png" value="' + escapeHtml(p.logo || '') + '">' +
+                '<p class="text-[11px] text-gray-600 mt-1">Upload this image to your repo, next to index.html.</p></div>' +
+              '<div><label class="field-label">Fallback icon</label><div class="flex items-center gap-2">' +
+                '<select class="field-select flex-1" data-field="icon">' + iconOptionsHtml(p.icon) + '</select>' +
+                '<div class="icon-preview-box w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(255,255,255,.06);"><i data-lucide="' + escapeHtml(p.icon || 'box') + '" class="w-4 h-4"></i></div>' +
+              '</div><p class="text-[11px] text-gray-600 mt-1">Shown until the logo image loads.</p></div>' +
+            '</div>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">' +
+              '<div><label class="field-label">Link URL</label><input class="field-input" data-field="link" placeholder="https://..." value="' + escapeHtml(p.link || '') + '"></div>' +
+              '<div><label class="field-label">Button text</label><input class="field-input" data-field="linkText" placeholder="View on GitHub" value="' + escapeHtml(p.linkText || '') + '"></div>' +
+            '</div>' +
+            '<div>' +
+              '<label class="field-label">Tech tags</label>' +
+              '<div class="flex flex-wrap gap-1.5 mb-2">' + tagsHtml + '</div>' +
+              '<div class="flex gap-2"><input class="field-input flex-1" data-tag-input placeholder="e.g. Kotlin — press Enter to add"><button type="button" class="btn-secondary shrink-0" data-action="add-tag">Add</button></div>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+      lucide.createIcons();
+    }
+
+    /* Text/select/textarea edits inside a project card */
+    document.getElementById('projects-editor').addEventListener('input', function (e) {
+      var card = e.target.closest('.project-editor-card');
+      if (!card) return;
+      var idx = parseInt(card.dataset.index, 10);
+      var field = e.target.dataset.field;
+      if (field) {
+        siteData.projects[idx][field] = e.target.value;
+        saveDraft();
+        renderPreview();
+        if (field === 'icon') {
+          var box = card.querySelector('.icon-preview-box');
+          box.innerHTML = '<i data-lucide="' + escapeHtml(e.target.value) + '" class="w-4 h-4"></i>';
+          lucide.createIcons();
+        }
+      }
+    });
+
+    /* Buttons inside a project card: move / delete / add-tag / remove-tag */
+    document.getElementById('projects-editor').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      var card = btn.closest('.project-editor-card');
+      var idx = card ? parseInt(card.dataset.index, 10) : -1;
+      var action = btn.dataset.action;
+
+      if (action === 'delete') {
+        if (confirm('Remove "' + (siteData.projects[idx].name || 'this project') + '"?')) {
+          siteData.projects.splice(idx, 1);
+          renderProjectsEditor(); renderPreview(); saveDraft();
+        }
+      } else if (action === 'move-up' && idx > 0) {
+        var a = siteData.projects[idx]; siteData.projects[idx] = siteData.projects[idx - 1]; siteData.projects[idx - 1] = a;
+        renderProjectsEditor(); renderPreview(); saveDraft();
+      } else if (action === 'move-down' && idx < siteData.projects.length - 1) {
+        var b = siteData.projects[idx]; siteData.projects[idx] = siteData.projects[idx + 1]; siteData.projects[idx + 1] = b;
+        renderProjectsEditor(); renderPreview(); saveDraft();
+      } else if (action === 'add-tag') {
+        var input = card.querySelector('[data-tag-input]');
+        var val = input.value.trim();
+        if (val) {
+          siteData.projects[idx].tags = siteData.projects[idx].tags || [];
+          siteData.projects[idx].tags.push(val);
+          renderProjectsEditor(); renderPreview(); saveDraft();
+        }
+      } else if (action === 'remove-tag') {
+        var tagIdx = parseInt(btn.dataset.tagIndex, 10);
+        siteData.projects[idx].tags.splice(tagIdx, 1);
+        renderProjectsEditor(); renderPreview(); saveDraft();
+      }
+    });
+
+    /* Enter key adds a tag too */
+    document.getElementById('projects-editor').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && e.target.hasAttribute('data-tag-input')) {
+        e.preventDefault();
+        e.target.closest('.project-editor-card').querySelector('[data-action="add-tag"]').click();
+      }
+    });
+
+    document.getElementById('add-project-btn').addEventListener('click', function () {
+      siteData.projects.push({ name: 'New Project', category: 'apps', description: '', tags: [], logo: '', icon: 'box', link: '', linkText: 'View Project' });
+      renderProjectsEditor(); renderPreview(); saveDraft();
+    });
+
+    /* ---------- live preview (mirrors the real site's card markup) ---------- */
+    function renderPreview() {
+      var grid = document.getElementById('preview-grid');
+      var emptyHint = document.getElementById('preview-empty-hint');
+      var projects = siteData.projects || [];
+      emptyHint.classList.toggle('hidden', projects.length > 0);
+
+      grid.innerHTML = projects.map(function (p, i) {
+        var grad = GRADIENTS[i % GRADIENTS.length];
+        var icon = escapeHtml(p.icon || 'box');
+        var tagsHtml = (p.tags || []).map(function (tag, ti) {
+          return '<span class="tag-pill"><span class="w-1.5 h-1.5 rounded-full" style="background:' + TAG_COLORS[ti % TAG_COLORS.length] + ';"></span>' + escapeHtml(tag) + '</span>';
+        }).join('');
+
+        return (
+          '<div class="relative rounded-[24px] p-[1.5px]">' +
+            '<div class="absolute inset-0 rounded-[24px] ring-spin-slow" style="background:conic-gradient(from 0deg, var(--cyan), var(--violet), var(--magenta), var(--amber), var(--cyan));"></div>' +
+            '<div class="relative rounded-[22px] overflow-hidden flex flex-col p-5" style="background:var(--deep);">' +
+              '<i data-lucide="' + icon + '" class="absolute -right-4 -bottom-6 w-28 h-28 text-white/[0.03] pointer-events-none" stroke-width="1"></i>' +
+              '<div class="relative w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden mb-3 shrink-0" style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);">' +
+                '<img src="' + escapeHtml(p.logo || '') + '" alt="" class="w-full h-full object-cover" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">' +
+                '<div class="w-full h-full items-center justify-center" style="display:none; background:linear-gradient(135deg,' + grad[0] + ',' + grad[1] + ');"><i data-lucide="' + icon + '" class="w-5 h-5 text-white"></i></div>' +
+              '</div>' +
+              '<h3 class="relative font-display text-lg font-semibold mb-1">' + (escapeHtml(p.name || '') || '<span class=\'text-gray-600\'>Untitled</span>') + '</h3>' +
+              '<p class="relative text-gray-400 text-xs leading-relaxed mb-3">' + (escapeHtml(p.description || '') || '<span class="text-gray-600">No description yet</span>') + '</p>' +
+              '<div class="relative flex flex-wrap gap-1.5 mb-4">' + tagsHtml + '</div>' +
+              '<div class="cta-btn relative mt-auto inline-flex items-center justify-center gap-2 w-fit rounded-lg px-4 py-2 text-xs font-semibold">' + escapeHtml(p.linkText || 'View Project') + ' <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i></div>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+      lucide.createIcons();
+    }
+
+    /* ---------- generate & download ---------- */
+    function downloadUpdatedFile() {
+      if (!originalFileText) { alert('Upload your current index.html first.'); return; }
+      var jsonBlock = JSON.stringify(siteData, null, 2).replace(/<\/script/gi, '<\\/script');
+      var newText = originalFileText.replace(DATA_BLOCK_RE, function (m, p1, p2, p3) {
+        return p1 + '\n' + jsonBlock + '\n  ' + p3;
+      });
+      var blob = new Blob([newText], { type: 'text/html' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'index.html';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setStatus('Downloaded — upload it to GitHub to go live.');
+    }
+    document.getElementById('download-btn').addEventListener('click', downloadUpdatedFile);
+    document.getElementById('download-btn-bottom').addEventListener('click', downloadUpdatedFile);
+
+    /* ---------- boot ---------- */
+    lucide.createIcons();
+    if (loadDraft()) {
+      renderAll();
+      document.getElementById('editor-section').classList.remove('hidden');
+      document.getElementById('download-btn').disabled = false;
+      setStatus('Resumed your last session — ' + siteData.projects.length + ' project(s).');
+    } else {
+      setStatus('Upload your current index.html to get started.');
+    }
+  </script>
+</body>
+</html>
