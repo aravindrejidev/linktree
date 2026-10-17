@@ -217,6 +217,7 @@
     animation:breathe 3s ease-in-out infinite;
   }
   @keyframes breathe{ 0%,100%{ opacity:1 } 50%{ opacity:.5 } }
+  @keyframes pulse-soft{ 0%,100%{ opacity:1 } 50%{ opacity:.62 } }
 
   .socials{ display:flex; gap:18px; margin-top:30px; }
   .social{
@@ -268,7 +269,8 @@
     background:var(--bg); border:1px solid var(--rim);
     box-shadow:var(--r-lg);
   }
-  .card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:26px; }
+  .card-top{ display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:26px; }
+  .card-meta{ display:flex; flex-direction:column; align-items:flex-end; gap:10px; margin-left:auto; }
 
   .logo-well{ width:84px; height:84px; padding:10px; border-radius:26px; box-shadow:var(--i-md); }
   .logo-img, .logo-fallback{ width:100%; height:100%; border-radius:17px; }
@@ -282,6 +284,14 @@
     box-shadow:var(--i-xs);
   }
   .chip .ico{ width:15px; height:15px; color:var(--accent-ink); }
+  /* project status: a small indicator light; it only pulses while the project is being built */
+  .chip-status{ color:var(--ink); }
+  .chip-status .led{
+    width:8px; height:8px; animation:none;
+    box-shadow:0 0 8px var(--led,var(--green));
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--led,var(--green)) 18%, transparent), 0 0 9px var(--led,var(--green));
+  }
+  .chip-status.is-building .led{ animation:pulse-soft 2.4s ease-in-out infinite; }
 
   .card-title{ font-family:var(--font-display); font-weight:600; font-size:clamp(1.55rem,1.3rem + 1vw,1.95rem); line-height:1.15; letter-spacing:-.025em; margin-bottom:12px; }
   .card-desc{ color:var(--ink-2); font-size:1rem; line-height:1.7; max-width:46ch; margin-bottom:24px; }
@@ -475,6 +485,7 @@
     {
       "name": "TelDrive",
       "category": "apps",
+      "status": "Apk released",
       "description": "Uses a Telegram bot as unlimited cloud storage, with per-folder Sync Links that auto-backup in the background.",
       "tags": ["Flutter", "Telegram API", "SQLite"],
       "logo": "images/TelDrive.png",
@@ -485,11 +496,23 @@
     {
       "name": "Spectra",
       "category": "apps",
+      "status": "Apk released",
       "description": "Breaks down any audio file on-device \u2014 spectrogram, clipping, and a heuristic that flags fake-lossless FLACs.",
       "tags": ["Kotlin", "Jetpack Compose", "On-device DSP"],
       "logo": "images/spectra.png",
       "icon": "activity",
       "link": "https://github.com/aravindrejidev/Spectra",
+      "linkText": "View on GitHub"
+    },
+    {
+      "name": "Resonix",
+      "category": "apps",
+      "status": "Currently building",
+      "description": "A high-performance, open-source Android audio player with a 64-bit C++ DSP engine and bit-perfect Hi-Res playback.",
+      "tags": ["Kotlin", "Jetpack Compose", "C++ DSP"],
+      "logo": "images/resonix.png",
+      "icon": "music",
+      "link": "https://github.com/aravindrejidev/Resonix",
       "linkText": "View on GitHub"
     }
   ],
@@ -508,9 +531,32 @@
       '\u{1F534}': '#ef4444', /* red    */
       '\u{1F535}': '#3b82f6', /* blue   */
       '\u{1F7E3}': '#a855f7', /* purple */
-      '⚪':    '#cbd5e1', /* white  */
-      '⚫':    '#64748b'  /* black  */
+      '\u26AA':    '#cbd5e1', /* white  */
+      '\u26AB':    '#64748b'  /* black  */
     };
+
+    var TONE_COLORS = { live: '#22c55e', building: '#f5b82e', planned: '#94a3b8', info: '#7a5cff' };
+
+    /* Splits a leading coloured-circle emoji (if any) from the text: "(green circle) Live" -> { color, text } */
+    function parseLed(raw) {
+      var text = String(raw || '').trim();
+      var first = Array.from(text)[0];
+      var color = null;
+      if (first && Object.prototype.hasOwnProperty.call(LED_COLORS, first)) {
+        color = LED_COLORS[first];
+        text = text.slice(first.length).replace(/^\uFE0F/, '').trim();
+      }
+      return { text: text, color: color };
+    }
+
+    /* Reads what a status means from its words, so plain text like "Apk released" gets the right light */
+    function statusTone(text) {
+      var t = String(text || '').toLowerCase();
+      if (/(not yet|unreleased|not released|coming|upcoming|soon|plan|idea|paused|on hold|archiv)/.test(t)) return 'planned';
+      if (/(build|develop|progress|wip|working|beta|alpha|testing)/.test(t)) return 'building';
+      if (/(releas|live|launch|ship|stable|available|publish|done|complete)/.test(t)) return 'live';
+      return 'info';
+    }
 
     function escapeHtml(str) {
       return String(str)
@@ -552,14 +598,10 @@
       }
 
       if (statusEl && statusTextEl) {
-        var status = String(profile.status || '').trim();
-        var first = Array.from(status)[0];
-        if (first && Object.prototype.hasOwnProperty.call(LED_COLORS, first)) {
-          statusEl.style.setProperty('--led', LED_COLORS[first]);
-          status = status.slice(first.length).replace(/^️/, '').trim();
-        }
-        statusTextEl.textContent = status;
-        statusEl.classList.toggle('hidden', !status);
+        var parsed = parseLed(profile.status);
+        if (parsed.color) statusEl.style.setProperty('--led', parsed.color);
+        statusTextEl.textContent = parsed.text;
+        statusEl.classList.toggle('hidden', !parsed.text);
       }
 
       var socials = profile.socials || {};
@@ -594,6 +636,15 @@
           return '<li class="tag"><span class="tag-dot" style="--dot:' + TINTS[ti % TINTS.length] + ';"></span>' + escapeHtml(tag) + '</li>';
         }).join('');
 
+        /* optional "status": "Apk released" / "Currently building" ... -> indicator light + text */
+        var statusHtml = '';
+        var st = p.status ? parseLed(p.status) : null;
+        if (st && st.text) {
+          var tone = statusTone(st.text);
+          statusHtml = '<span class="chip chip-status' + (tone === 'building' ? ' is-building' : '') + '" style="--led:' + (st.color || TONE_COLORS[tone]) + ';">' +
+            '<span class="led" aria-hidden="true"></span>' + escapeHtml(st.text) + '</span>';
+        }
+
         return (
           '<article class="project-card" data-category="' + escapeHtml(catKey) + '">' +
             '<div class="card">' +
@@ -602,7 +653,10 @@
                   '<img src="' + escapeHtml(p.logo || '') + '" alt="' + escapeHtml(p.name || '') + ' logo" class="logo-img" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' +
                   '<div class="logo-fallback" style="display:none; --tint:' + tint + ';"><i data-lucide="' + icon + '" class="ico"></i></div>' +
                 '</div>' +
-                '<span class="chip"><i data-lucide="' + escapeHtml(cat.icon) + '" class="ico"></i>' + escapeHtml(cat.label) + '</span>' +
+                '<div class="card-meta">' +
+                  '<span class="chip"><i data-lucide="' + escapeHtml(cat.icon) + '" class="ico"></i>' + escapeHtml(cat.label) + '</span>' +
+                  statusHtml +
+                '</div>' +
               '</div>' +
               '<h3 class="card-title">' + escapeHtml(p.name || '') + '</h3>' +
               '<p class="card-desc">' + escapeHtml(p.description || '') + '</p>' +
@@ -652,7 +706,13 @@
 
     /* Stats driven straight from the data — never go stale */
     var projectCountEl = document.getElementById('project-count-stat');
-    if (projectCountEl) projectCountEl.setAttribute('data-count-to', DATA.projects.length);
+    /* Projects still being built (or only planned) are not "shipped" yet; no status = shipped, as before */
+    var shippedCount = DATA.projects.filter(function (p) {
+      if (!p.status) return true;
+      var tone = statusTone(parseLed(p.status).text);
+      return tone !== 'building' && tone !== 'planned';
+    }).length;
+    if (projectCountEl) projectCountEl.setAttribute('data-count-to', shippedCount);
     var openSourceEl = document.getElementById('open-source-stat');
     var openSourcePct = 100;
     if (DATA.stats && DATA.stats.openSourcePercent != null) openSourcePct = Math.max(0, Math.min(100, Number(DATA.stats.openSourcePercent) || 0));
