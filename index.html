@@ -24,6 +24,10 @@
   })();
 </script>
 
+<!-- The project list comes from Google Apps Script: open the connection early -->
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+
 <!-- Fonts: Sora (headings, numerals) + Figtree (body) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -321,6 +325,69 @@
   .empty-ico .ico{ width:28px; height:28px; }
   .empty p{ color:var(--ink-2); font-size:.95rem; }
 
+  /* ==================================================================
+     DYNAMIC DATA: loading skeleton, notices, error panel
+     ================================================================== */
+  :root{ --shine:rgba(255,255,255,.62); }
+  :root[data-theme="dark"]{ --shine:rgba(255,255,255,.075); }
+
+  /* cards ease in one after another when the list first appears */
+  .project-card{ animation:cardIn .55s cubic-bezier(.2,.8,.2,1) backwards; animation-delay:calc(var(--i,0) * 70ms); }
+  @keyframes cardIn{ from{ opacity:0; transform:translateY(14px); } }
+
+  .is-bare .card-title{ margin-bottom:28px; }
+
+  /* skeleton: the same card shape, with inset "wells" that shimmer */
+  .project-card.is-skeleton{ animation:none; pointer-events:none; }
+  .sk{ position:relative; overflow:hidden; border-radius:14px; background:var(--bg); box-shadow:var(--i-xs); }
+  .sk::after{
+    content:""; position:absolute; inset:0; transform:translateX(-100%);
+    background:linear-gradient(90deg, transparent, var(--shine), transparent);
+    animation:shimmer 1.7s ease-in-out infinite;
+  }
+  @keyframes shimmer{ to{ transform:translateX(100%); } }
+  .sk-logo{ width:100%; height:100%; border-radius:17px; }
+  .sk-chip{ display:block; width:92px; height:34px; border-radius:999px; }
+  .sk-chip.wide{ width:132px; }
+  .sk-title{ width:56%; height:30px; margin-bottom:16px; }
+  .sk-line{ height:14px; width:94%; margin-bottom:12px; }
+  .sk-line.short{ width:68%; margin-bottom:26px; }
+  .sk-tags{ display:flex; gap:12px; margin-bottom:30px; }
+  .sk-tag{ width:84px; height:34px; border-radius:999px; }
+  .sk-btn{ width:150px; height:46px; border-radius:18px; margin-top:auto; }
+
+  /* "showing saved list, couldn't refresh" */
+  .note{
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px 14px;
+    width:fit-content; max-width:100%; margin:0 auto var(--gap); padding:9px 10px 9px 20px; border-radius:28px;
+    font-size:.88rem; font-weight:600; line-height:1.3; color:var(--ink-2); box-shadow:var(--i-sm);
+  }
+  .note-msg{ display:inline-flex; align-items:center; gap:10px; text-align:left; }
+  .note-msg .ico{ width:16px; height:16px; color:var(--amber); }
+  .note-btn{
+    display:inline-flex; align-items:center; gap:7px; min-height:36px; padding:8px 16px; border-radius:18px;
+    font-size:.85rem; font-weight:700; color:var(--accent-ink);
+    background:linear-gradient(145deg,var(--hi),var(--lo)); box-shadow:var(--r-xs);
+  }
+  .note-btn .ico{ width:15px; height:15px; }
+
+  /* error panel */
+  .state{
+    max-width:30rem; margin:0 auto; text-align:center;
+    padding:clamp(28px,4vw,40px) clamp(22px,4vw,36px); border-radius:32px;
+    background:var(--bg); border:1px solid var(--rim); box-shadow:var(--r-lg);
+  }
+  .state-ico{ width:68px; height:68px; margin:0 auto 18px; border-radius:50%; display:grid; place-items:center; color:var(--amber); box-shadow:var(--i-md); }
+  .state-ico .ico{ width:28px; height:28px; }
+  .state h3{ font-family:var(--font-display); font-weight:600; font-size:1.3rem; letter-spacing:-.02em; margin-bottom:8px; }
+  .state p{ color:var(--ink-2); font-size:.95rem; line-height:1.6; }
+  .state .btn{ display:flex; width:fit-content; margin:26px auto 0; }
+  @media (hover:hover){ .state .btn:hover .ico{ transform:none; } }
+  .is-loading .ico{ animation:spin .9s linear infinite; }
+  .is-loading{ opacity:.7; pointer-events:none; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .noscript{ text-align:center; color:var(--ink-2); padding:24px 0; }
+
   /* ---------- stats ---------- */
   .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr)); gap:var(--gap); margin-top:var(--gap); }
   .stat{
@@ -420,25 +487,37 @@
       </div>
     </header>
 
-    <!-- ================= FILTER ================= -->
-    <div class="filters no-scrollbar" role="group" aria-label="Filter projects">
+    <!-- ================= FILTER (tabs are built from the categories found in the sheet) ================= -->
+    <div class="filters no-scrollbar hidden" id="filters" role="group" aria-label="Filter projects">
       <div class="seg" id="filter-seg">
         <span class="seg-thumb" id="filter-thumb" aria-hidden="true"></span>
-        <button type="button" data-filter="all" aria-pressed="true" class="filter-btn seg-btn tab-active"><i data-lucide="layout-grid" class="ico"></i><span class="lbl-long">All Projects</span><span class="lbl-short">All</span></button>
-        <button type="button" data-filter="apps" aria-pressed="false" class="filter-btn seg-btn"><i data-lucide="smartphone" class="ico"></i>Apps</button>
-        <button type="button" data-filter="websites" aria-pressed="false" class="filter-btn seg-btn"><i data-lucide="globe" class="ico"></i>Websites</button>
-        <button type="button" data-filter="tools" aria-pressed="false" class="filter-btn seg-btn"><i data-lucide="wrench" class="ico"></i>Tools</button>
       </div>
     </div>
 
-    <!-- ================= PROJECTS (filled in by renderProjects) ================= -->
-    <h2 class="sr-only">Projects</h2>
-    <div id="bento-grid" class="grid"></div>
+    <!-- shown when the saved list is on screen but the fresh one could not be fetched -->
+    <div id="load-note" class="note hidden" role="status">
+      <span class="note-msg"><i data-lucide="cloud-off" class="ico"></i><span id="note-text">Showing saved projects. Couldn't refresh.</span></span>
+      <button type="button" id="note-retry" class="note-btn press"><i data-lucide="refresh-cw" class="ico"></i>Retry</button>
+    </div>
 
-    <!-- Empty state, shown by JS when a filter matches nothing yet -->
+    <!-- ================= PROJECTS (cards come from the Google Sheet via Apps Script) ================= -->
+    <h2 class="sr-only">Projects</h2>
+    <p id="load-status" class="sr-only" role="status" aria-live="polite"></p>
+    <div id="bento-grid" class="grid" aria-busy="true"></div>
+    <noscript><p class="noscript">Turn on JavaScript to see the projects.</p></noscript>
+
+    <!-- Loading failed -->
+    <div id="load-error" class="state hidden" role="alert">
+      <div class="state-ico"><i data-lucide="cloud-off" class="ico"></i></div>
+      <h3 id="err-title"></h3>
+      <p id="err-text"></p>
+      <button type="button" id="err-retry" class="btn press"><i data-lucide="refresh-cw" class="ico"></i><span>Try again</span></button>
+    </div>
+
+    <!-- Loaded fine, but the sheet has no links yet -->
     <div id="empty-state" class="empty hidden" role="status">
       <div class="empty-ico"><i data-lucide="inbox" class="ico"></i></div>
-      <p>Nothing in this category yet — more projects landing soon.</p>
+      <p id="empty-text">No projects yet. More are landing soon.</p>
     </div>
 
     <!-- ================= QUICK STATS ================= -->
@@ -446,7 +525,7 @@
       <div class="stat">
         <div class="stat-ico"><i data-lucide="rocket" class="ico"></i></div>
         <div>
-          <p class="stat-num"><span id="project-count-stat" data-count-to="0">0</span></p>
+          <p class="stat-num"><span id="project-count-stat" data-count-to="0">–</span></p>
           <p class="stat-label">Projects Shipped</p>
         </div>
       </div>
@@ -467,7 +546,8 @@
   </footer>
 
   <!-- ================= SITE DATA ================= -->
-  <!-- This is the ONLY block the admin panel edits. Everything above renders from it. -->
+  <!-- Your name, tagline, status line and social links. The PROJECT cards no longer live here:
+       they come from your Google Sheet (see APPS_SCRIPT_URL in the script below). -->
   <script id="site-data" type="application/json">
 {
   "profile": {
@@ -481,41 +561,7 @@
       "instagram": "https://www.instagram.com/gh9aravind_3000?stkn=MWtxdWNvaGU2YXhvMg=="
     }
   },
-  "projects": [
-    {
-      "name": "TelDrive",
-      "category": "apps",
-      "status": "Apk released",
-      "description": "Uses a Telegram bot as unlimited cloud storage, with per-folder Sync Links that auto-backup in the background.",
-      "tags": ["Flutter", "Telegram API", "SQLite"],
-      "logo": "images/TelDrive.png",
-      "icon": "cloud",
-      "link": "https://github.com/aravindrejidev/TelDrive",
-      "linkText": "View on GitHub"
-    },
-    {
-      "name": "Spectra",
-      "category": "apps",
-      "status": "Apk released",
-      "description": "Breaks down any audio file on-device \u2014 spectrogram, clipping, and a heuristic that flags fake-lossless FLACs.",
-      "tags": ["Kotlin", "Jetpack Compose", "On-device DSP"],
-      "logo": "images/spectra.png",
-      "icon": "activity",
-      "link": "https://github.com/aravindrejidev/Spectra",
-      "linkText": "View on GitHub"
-    },
-    {
-      "name": "Resonix",
-      "category": "apps",
-      "status": "Currently building",
-      "description": "A high-performance, open-source Android audio player with a 64-bit C++ DSP engine and bit-perfect Hi-Res playback.",
-      "tags": ["Kotlin", "Jetpack Compose", "C++ DSP"],
-      "logo": "images/resonix.png",
-      "icon": "music",
-      "link": "https://github.com/aravindrejidev/Resonix",
-      "linkText": "View on GitHub"
-    }
-  ],
+  "projects": [],
   "stats": {
     "openSourcePercent": 100
   }
@@ -523,6 +569,16 @@
   </script>
 
   <script>
+    /* ==================================================================
+       SETTINGS: the only line you must edit
+       ------------------------------------------------------------------
+       Paste the web-app URL you get after deploying Code.gs in Google
+       Apps Script (it ends with /exec).
+       ================================================================== */
+    var APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL';
+    var FETCH_TIMEOUT_MS = 15000;           /* stop waiting after 15 seconds */
+    var CACHE_KEY = 'linktree:links:v1';    /* last good list, kept in the browser so repeat visits are instant */
+
     /* Leading coloured-circle emoji in "status" becomes the colour of the status light */
     var LED_COLORS = {
       '\u{1F7E2}': '#22c55e', /* green  */
@@ -615,28 +671,123 @@
       if (profile.name) document.title = profile.name + ' — App Creator & Web Builder';
     }
 
-    function renderProjects(projects) {
-      projects = projects || [];
-      var TINTS = ['var(--cyan)', 'var(--violet)', 'var(--magenta)', 'var(--amber)'];
-      var CATS = {
-        apps:     { icon: 'smartphone', label: 'App' },
-        websites: { icon: 'globe',      label: 'Website' },
-        tools:    { icon: 'wrench',     label: 'Tool' }
+    /* ---------- tiny helpers ---------- */
+    function $(id) { return document.getElementById(id); }
+    function own(obj, key) { return Object.prototype.hasOwnProperty.call(obj, key); }
+    function show(el, on) { if (el) el.classList.toggle('hidden', !on); }
+
+    /* text only: control characters out, white space collapsed, length capped */
+    function str(value, max) {
+      return String(value == null ? '' : value).replace(/[\x00-\x1f\x7f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+    }
+
+    /* Only web and mail links may become a link. "github.com/x" is repaired; "javascript:" and friends are dropped. */
+    function safeHref(raw) {
+      var u = str(raw, 500);
+      if (!u || /\s/.test(u)) return '';
+      if (/^https?:\/\/[^\s\/?#]+/i.test(u)) return u;
+      if (/^mailto:[^\s@]+@[^\s@]+$/i.test(u)) return u;
+      if (/^[a-z0-9-]+(\.[a-z0-9-]+)+(:\d+)?([\/?#]\S*)?$/i.test(u)) return 'https://' + u;
+      return '';
+    }
+    function safeIcon(raw) {
+      var i = str(raw, 40).toLowerCase();
+      return /^[a-z0-9]+(-[a-z0-9]+)*$/.test(i) ? i : '';
+    }
+    function safeLogo(raw) {
+      var s = str(raw, 500);
+      if (!s || /\s/.test(s) || /[<>"']/.test(s)) return '';
+      if (/^https?:\/\/[^\s\/?#]+/i.test(s)) return s;
+      if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return '';
+      return s;
+    }
+    function toTags(raw) {
+      var list = Array.isArray(raw) ? raw : String(raw == null ? '' : raw).split(',');
+      return list.map(function (t) { return str(t, 24); }).filter(Boolean).slice(0, 8);
+    }
+
+    /* ---------- categories ---------- */
+    var CATS = {
+      apps:     { icon: 'smartphone', label: 'App',     plural: 'Apps' },
+      websites: { icon: 'globe',      label: 'Website', plural: 'Websites' },
+      tools:    { icon: 'wrench',     label: 'Tool',    plural: 'Tools' }
+    };
+    var CAT_ORDER = ['apps', 'websites', 'tools'];
+    var CAT_ALIASES = { app: 'apps', website: 'websites', web: 'websites', site: 'websites', sites: 'websites', tool: 'tools', utility: 'tools', utilities: 'tools' };
+    var TINTS = ['var(--cyan)', 'var(--violet)', 'var(--magenta)', 'var(--amber)'];
+
+    function normCategory(raw) {
+      var k = str(raw, 30).toLowerCase();
+      if (!k) return 'other';
+      return own(CAT_ALIASES, k) ? CAT_ALIASES[k] : k;
+    }
+    function catInfo(key) {
+      if (own(CATS, key)) return CATS[key];
+      var label = key.charAt(0).toUpperCase() + key.slice(1);
+      return { icon: 'box', label: label, plural: label };
+    }
+
+    /* One entry from the sheet -> a clean card record (or null if it can't be shown safely) */
+    function normalizeLink(raw) {
+      if (!raw || typeof raw !== 'object') return null;
+      var title = str(raw.title, 80);
+      var url = safeHref(raw.url);
+      if (!title || !url) return null;
+      return {
+        title: title,
+        url: url,
+        category: normCategory(raw.category),
+        icon: safeIcon(raw.icon),
+        description: str(raw.description, 300),
+        tags: toTags(raw.tags),
+        status: str(raw.status, 60),
+        logo: safeLogo(raw.logo)
       };
+    }
 
-      var grid = document.getElementById('bento-grid');
-      if (!grid) return;
+    function linkLabel(url) {
+      if (/^mailto:/i.test(url)) return 'Send Email';
+      var host = '';
+      try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch (e) {}
+      if (host === 'github.com') return 'View on GitHub';
+      if (host === 'play.google.com') return 'Get on Google Play';
+      return 'View Project';
+    }
 
-      var html = projects.map(function (p, i) {
+    function categoriesOf(links) {
+      var seen = {}, list = [];
+      links.forEach(function (l) { if (!seen[l.category]) { seen[l.category] = true; list.push(l.category); } });
+      list.sort(function (a, b) {
+        var ia = CAT_ORDER.indexOf(a), ib = CAT_ORDER.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      });
+      return list;
+    }
+
+    /* Lucide leaves icon names it doesn't know untouched; give those a neutral box instead of a blank tile */
+    function refreshIcons() {
+      if (!(window.lucide && lucide.createIcons)) return;
+      lucide.createIcons();
+      var left = document.querySelectorAll('i[data-lucide]');
+      if (left.length) {
+        Array.prototype.forEach.call(left, function (n) { n.setAttribute('data-lucide', 'box'); });
+        lucide.createIcons();
+      }
+    }
+
+    /* ---------- cards ---------- */
+    function renderProjects(links) {
+      var grid = $('bento-grid');
+      grid.innerHTML = links.map(function (p, i) {
         var tint = TINTS[i % TINTS.length];
-        var icon = escapeHtml(p.icon || 'box');
-        var catKey = p.category || 'apps';
-        var cat = Object.prototype.hasOwnProperty.call(CATS, catKey) ? CATS[catKey] : { icon: 'box', label: String(catKey) };
-        var tagsHtml = (p.tags || []).map(function (tag, ti) {
+        var cat = catInfo(p.category);
+        var icon = p.icon || cat.icon;
+
+        var tagsHtml = p.tags.map(function (tag, ti) {
           return '<li class="tag"><span class="tag-dot" style="--dot:' + TINTS[ti % TINTS.length] + ';"></span>' + escapeHtml(tag) + '</li>';
         }).join('');
 
-        /* optional "status": "Apk released" / "Currently building" ... -> indicator light + text */
+        /* "status": "Apk released" / "Currently building" ... -> indicator light + text */
         var statusHtml = '';
         var st = p.status ? parseLed(p.status) : null;
         if (st && st.text) {
@@ -645,40 +796,54 @@
             '<span class="led" aria-hidden="true"></span>' + escapeHtml(st.text) + '</span>';
         }
 
+        var fallback = '<div class="logo-fallback" style="display:' + (p.logo ? 'none' : 'flex') + '; --tint:' + tint + ';"><i data-lucide="' + escapeHtml(icon) + '" class="ico"></i></div>';
+        var logoHtml = p.logo
+          ? '<img src="' + escapeHtml(p.logo) + '" alt="' + escapeHtml(p.title) + ' logo" class="logo-img" decoding="async" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' + fallback
+          : fallback;
+
+        var external = /^mailto:/i.test(p.url) ? '' : ' target="_blank" rel="noopener noreferrer"';
+
         return (
-          '<article class="project-card" data-category="' + escapeHtml(catKey) + '">' +
+          '<article class="project-card' + (!p.description && !tagsHtml ? ' is-bare' : '') + '" style="--i:' + i + ';" data-category="' + escapeHtml(p.category) + '">' +
             '<div class="card">' +
               '<div class="card-top">' +
-                '<div class="logo-well">' +
-                  '<img src="' + escapeHtml(p.logo || '') + '" alt="' + escapeHtml(p.name || '') + ' logo" class="logo-img" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';" />' +
-                  '<div class="logo-fallback" style="display:none; --tint:' + tint + ';"><i data-lucide="' + icon + '" class="ico"></i></div>' +
-                '</div>' +
+                '<div class="logo-well">' + logoHtml + '</div>' +
                 '<div class="card-meta">' +
                   '<span class="chip"><i data-lucide="' + escapeHtml(cat.icon) + '" class="ico"></i>' + escapeHtml(cat.label) + '</span>' +
                   statusHtml +
                 '</div>' +
               '</div>' +
-              '<h3 class="card-title">' + escapeHtml(p.name || '') + '</h3>' +
-              '<p class="card-desc">' + escapeHtml(p.description || '') + '</p>' +
-              '<ul class="tags">' + tagsHtml + '</ul>' +
-              '<a href="' + escapeHtml(p.link || '#') + '" target="_blank" rel="noopener noreferrer" class="btn press">' +
-                '<span>' + escapeHtml(p.linkText || 'View Project') + '</span><i data-lucide="arrow-up-right" class="ico"></i>' +
+              '<h3 class="card-title">' + escapeHtml(p.title) + '</h3>' +
+              (p.description ? '<p class="card-desc">' + escapeHtml(p.description) + '</p>' : '') +
+              (tagsHtml ? '<ul class="tags">' + tagsHtml + '</ul>' : '') +
+              '<a href="' + escapeHtml(p.url) + '"' + external + ' class="btn press">' +
+                '<span>' + escapeHtml(linkLabel(p.url)) + '</span><i data-lucide="arrow-up-right" class="ico"></i>' +
               '</a>' +
             '</div>' +
           '</article>'
         );
       }).join('');
-
-      grid.innerHTML = html;
     }
 
-    /* ---------- Load data & render the page ---------- */
+    /* Placeholder cards with the same shape, shown while the list is on its way */
+    function skeletonCard() {
+      return (
+        '<article class="project-card is-skeleton" aria-hidden="true"><div class="card">' +
+          '<div class="card-top">' +
+            '<div class="logo-well"><div class="sk sk-logo"></div></div>' +
+            '<div class="card-meta"><span class="sk sk-chip"></span><span class="sk sk-chip wide"></span></div>' +
+          '</div>' +
+          '<div class="sk sk-title"></div>' +
+          '<div class="sk sk-line"></div><div class="sk sk-line short"></div>' +
+          '<div class="sk-tags"><span class="sk sk-tag"></span><span class="sk sk-tag"></span><span class="sk sk-tag"></span></div>' +
+          '<div class="sk sk-btn"></div>' +
+        '</div></article>'
+      );
+    }
+
+    /* ---------- Profile (name, tagline, socials) ---------- */
     var DATA = JSON.parse(document.getElementById('site-data').textContent);
     renderProfile(DATA.profile);
-    renderProjects(DATA.projects);
-
-    /* Icons must init AFTER the dynamic content above exists in the DOM */
-    if (window.lucide && lucide.createIcons) lucide.createIcons();
 
     var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -704,32 +869,28 @@
       });
     }
 
-    /* Stats driven straight from the data — never go stale */
-    var projectCountEl = document.getElementById('project-count-stat');
-    /* Projects still being built (or only planned) are not "shipped" yet; no status = shipped, as before */
-    var shippedCount = DATA.projects.filter(function (p) {
-      if (!p.status) return true;
-      var tone = statusTone(parseLed(p.status).text);
-      return tone !== 'building' && tone !== 'planned';
-    }).length;
-    if (projectCountEl) projectCountEl.setAttribute('data-count-to', shippedCount);
-    var openSourceEl = document.getElementById('open-source-stat');
-    var openSourcePct = 100;
-    if (DATA.stats && DATA.stats.openSourcePercent != null) openSourcePct = Math.max(0, Math.min(100, Number(DATA.stats.openSourcePercent) || 0));
-    if (openSourceEl) openSourceEl.setAttribute('data-count-to', openSourcePct);
-    var gaugeEl = document.getElementById('open-source-gauge');
-    if (gaugeEl) gaugeEl.style.setProperty('--pct', openSourcePct + '%');
 
-    /* ---------- Filter tabs ---------- */
-    var filterBtns = document.querySelectorAll('.filter-btn');
-    var projectCards = document.querySelectorAll('.project-card[data-category]');
-    var emptyState = document.getElementById('empty-state');
-    var seg = document.getElementById('filter-seg');
-    var filtersBar = seg ? seg.parentNode : null;
+    /* ==================================================================
+       PAGE STATE
+       ================================================================== */
+    var state = { links: [], filter: 'all' };
+    var loading = false, hasRendered = false, lastSig = '';
+
+    var grid = $('bento-grid');
+    var filtersBar = $('filters');
+    var seg = $('filter-seg');
+    var noteEl = $('load-note');
+    var errorEl = $('load-error');
+    var emptyEl = $('empty-state');
+    var NOTE_TEXT = $('note-text').textContent;
+
+    function announce(text) { $('load-status').textContent = text; }
+
+    /* ---------- Filter tabs (built from the categories that exist) ---------- */
+    function filterButtons() { return seg.querySelectorAll('.filter-btn'); }
 
     /* The raised thumb sits under whichever tab is active */
     function placeThumb(instant) {
-      if (!seg) return;
       var active = seg.querySelector('.filter-btn.tab-active');
       if (!active) return;
       if (instant) seg.classList.remove('ready');
@@ -737,71 +898,86 @@
       seg.style.setProperty('--w', active.offsetWidth + 'px');
       if (instant) { void seg.offsetWidth; seg.classList.add('ready'); }
     }
-    placeThumb(false);
-    requestAnimationFrame(function () { if (seg) seg.classList.add('ready'); });
     /* Re-measure whenever the tabs change size (web font arrives, rotate, zoom, resize) */
-    if (window.ResizeObserver && seg) {
-      var thumbObserver = new ResizeObserver(function () { placeThumb(true); });
-      thumbObserver.observe(seg);
-      filterBtns.forEach(function (b) { thumbObserver.observe(b); });
-    } else {
-      window.addEventListener('resize', function () { placeThumb(true); });
-    }
+    var thumbObserver = window.ResizeObserver ? new ResizeObserver(function () { placeThumb(true); }) : null;
+    if (!thumbObserver) window.addEventListener('resize', function () { placeThumb(true); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { placeThumb(true); });
+    requestAnimationFrame(function () { seg.classList.add('ready'); });
 
-    if (emptyState && projectCards.length === 0) emptyState.classList.remove('hidden');
-
-    filterBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        filterBtns.forEach(function (b) {
-          b.classList.remove('tab-active');
-          b.setAttribute('aria-pressed', 'false');
-        });
-        btn.classList.add('tab-active');
-        btn.setAttribute('aria-pressed', 'true');
-        placeThumb(false);
-        if (filtersBar && filtersBar.scrollWidth > filtersBar.clientWidth) {
-          btn.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
-        }
-
-        var filter = btn.getAttribute('data-filter');
-        var anyMatch = false;
-
-        projectCards.forEach(function (card) {
-          var isMatch = filter === 'all' || card.getAttribute('data-category') === filter;
-          if (isMatch) anyMatch = true;
-          clearTimeout(card._hideTimeout);
-          if (isMatch) {
-            card.style.display = '';
-            void card.offsetWidth; /* force reflow so the transition plays */
-            card.style.opacity = '1';
-            card.style.transform = 'scale(1)';
-          } else {
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.94)';
-            card._hideTimeout = setTimeout(function () { card.style.display = 'none'; }, 300);
-          }
-        });
-
-        if (emptyState) emptyState.classList.toggle('hidden', anyMatch);
+    function buildFilters(cats) {
+      Array.prototype.forEach.call(filterButtons(), function (b) { b.parentNode.removeChild(b); });
+      var html = '<button type="button" data-filter="all" aria-pressed="false" class="filter-btn seg-btn"><i data-lucide="layout-grid" class="ico"></i><span class="lbl-long">All Projects</span><span class="lbl-short">All</span></button>';
+      cats.forEach(function (c) {
+        var info = catInfo(c);
+        html += '<button type="button" data-filter="' + escapeHtml(c) + '" aria-pressed="false" class="filter-btn seg-btn"><i data-lucide="' + escapeHtml(info.icon) + '" class="ico"></i>' + escapeHtml(info.plural) + '</button>';
       });
+      seg.insertAdjacentHTML('beforeend', html);
+      show(filtersBar, cats.length > 1);          /* one category only: nothing to filter */
+      if (thumbObserver) {
+        thumbObserver.disconnect();
+        thumbObserver.observe(seg);
+        Array.prototype.forEach.call(filterButtons(), function (b) { thumbObserver.observe(b); });
+      }
+    }
+
+    function setActiveTab(filter) {
+      Array.prototype.forEach.call(filterButtons(), function (b) {
+        var on = b.getAttribute('data-filter') === filter;
+        b.classList.toggle('tab-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+
+    function applyFilter(filter, instant) {
+      var cards = grid.querySelectorAll('.project-card[data-category]');
+      Array.prototype.forEach.call(cards, function (card) {
+        var isMatch = filter === 'all' || card.getAttribute('data-category') === filter;
+        clearTimeout(card._hideTimeout);
+        if (instant) {
+          card.style.display = isMatch ? '' : 'none';
+          card.style.opacity = '';
+          card.style.transform = '';
+          return;
+        }
+        if (isMatch) {
+          card.style.display = '';
+          void card.offsetWidth;                  /* force reflow so the transition plays */
+          card.style.opacity = '1';
+          card.style.transform = 'scale(1)';
+        } else {
+          card.style.opacity = '0';
+          card.style.transform = 'scale(0.94)';
+          card._hideTimeout = setTimeout(function () { card.style.display = 'none'; }, 300);
+        }
+      });
+    }
+
+    seg.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('.filter-btn') : null;
+      if (!btn) return;
+      state.filter = btn.getAttribute('data-filter');
+      setActiveTab(state.filter);
+      placeThumb(false);
+      if (filtersBar.scrollWidth > filtersBar.clientWidth) {
+        btn.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+      }
+      applyFilter(state.filter, false);
     });
 
-    /* ---------- Count-up stats (the ring fills when its card scrolls into view) ---------- */
-    var counters = document.querySelectorAll('[data-count-to]');
+    /* ---------- Stats ---------- */
+    var projectCountEl = $('project-count-stat');
+    var openSourceEl = $('open-source-stat');
+    var gaugeEl = $('open-source-gauge');
 
     function animateCounter(el) {
+      el._animated = true;
       var card = el.closest('.stat');
       if (card) card.classList.add('is-in');
-      var target = parseInt(el.getAttribute('data-count-to'), 10);
-      if (prefersReducedMotion) {
-        el.textContent = target;
-        return;
-      }
-      var duration = 1100;
-      var startTime = null;
+      if (prefersReducedMotion) { el.textContent = el.getAttribute('data-count-to'); return; }
+      var duration = 1100, startTime = null;
       function tick(now) {
         if (!startTime) startTime = now;
+        var target = parseInt(el.getAttribute('data-count-to'), 10) || 0;   /* read live: the number may change mid-animation */
         var progress = Math.min((now - startTime) / duration, 1);
         var eased = 1 - Math.pow(1 - progress, 3);
         el.textContent = Math.round(eased * target);
@@ -810,18 +986,188 @@
       requestAnimationFrame(tick);
     }
 
+    var counterObserver = null;
     if ('IntersectionObserver' in window) {
-      var counterObserver = new IntersectionObserver(function (entries) {
+      counterObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            animateCounter(entry.target);
-            counterObserver.unobserve(entry.target);
-          }
+          if (entry.isIntersecting) { animateCounter(entry.target); counterObserver.unobserve(entry.target); }
         });
       }, { threshold: 0.4 });
-      counters.forEach(function (el) { counterObserver.observe(el); });
+    }
+
+    /* Counts up when its card scrolls into view; later changes just swap the number */
+    function setCounter(el, n) {
+      if (!el) return;
+      el.setAttribute('data-count-to', n);
+      if (el._animated) { el.textContent = n; return; }
+      if (el._armed) return;
+      el._armed = true;
+      if (counterObserver) counterObserver.observe(el); else animateCounter(el);
+    }
+
+    /* Projects still being built (or only planned) are not "shipped" yet; no status = shipped */
+    function shippedCount(links) {
+      return links.filter(function (p) {
+        if (!p.status) return true;
+        var tone = statusTone(parseLed(p.status).text);
+        return tone !== 'building' && tone !== 'planned';
+      }).length;
+    }
+
+    var openSourcePct = 100;
+    if (DATA.stats && DATA.stats.openSourcePercent != null) openSourcePct = Math.max(0, Math.min(100, Number(DATA.stats.openSourcePercent) || 0));
+    if (gaugeEl) gaugeEl.style.setProperty('--pct', openSourcePct + '%');
+    setCounter(openSourceEl, openSourcePct);
+
+    /* ==================================================================
+       LOADING FROM GOOGLE APPS SCRIPT
+       ================================================================== */
+    var ERRORS = {
+      config:  { title: "Projects aren't connected yet", text: 'Open index.html and replace YOUR_APPS_SCRIPT_URL with your Google Apps Script web-app address.', retry: false },
+      timeout: { title: 'That took too long', text: "The project list didn't answer in time. Check your connection and try again.", retry: true },
+      network: { title: "Couldn't load the projects", text: "You may be offline, or the server can't be reached right now. Check your connection and try again.", retry: true },
+      server:  { title: "Couldn't read the project list", text: 'The server sent back something unexpected. Please try again in a moment.', retry: true }
+    };
+
+    function loadError(kind, detail) {
+      var e = new Error(detail || kind);
+      e.kind = kind;
+      return e;
+    }
+
+    function isConfigured() {
+      var u = String(APPS_SCRIPT_URL || '').trim();
+      return /^https:\/\//i.test(u) && u.indexOf('YOUR_APPS_SCRIPT_URL') === -1;
+    }
+
+    /* A plain GET with no custom headers, so the browser needs no CORS pre-flight (Apps Script can't answer one) */
+    function fetchLinks() {
+      return new Promise(function (resolve, reject) {
+        var ctrl = window.AbortController ? new AbortController() : null;
+        var timedOut = false;
+        var timer = setTimeout(function () {
+          timedOut = true;
+          if (ctrl) ctrl.abort(); else reject(loadError('timeout'));
+        }, FETCH_TIMEOUT_MS);
+
+        fetch(String(APPS_SCRIPT_URL).trim(), ctrl ? { signal: ctrl.signal } : undefined)
+          .then(function (res) {
+            if (!res.ok) throw loadError('server', 'HTTP ' + res.status);
+            return res.text();
+          })
+          .then(function (text) {
+            var data;
+            try { data = JSON.parse(text); }
+            catch (e) { throw loadError('server', 'The response was not JSON (is the deployment set to "Anyone"?): ' + text.slice(0, 120)); }
+            var list = Array.isArray(data) ? data : (data && data.ok !== false && Array.isArray(data.links) ? data.links : null);
+            if (!list) throw loadError('server', (data && data.error) || 'Unexpected response shape');
+            clearTimeout(timer);
+            resolve(list.map(normalizeLink).filter(Boolean));
+          })
+          .catch(function (err) {
+            clearTimeout(timer);
+            reject(timedOut ? loadError('timeout') : (err && err.kind ? err : loadError('network', err && err.message)));
+          });
+      });
+    }
+
+    /* The last good list stays in the browser: repeat visits show it at once and refresh quietly behind it */
+    function readCache() {
+      try {
+        var o = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+        return o && Array.isArray(o.links) ? o.links.map(normalizeLink).filter(Boolean) : null;
+      } catch (e) { return null; }
+    }
+    function writeCache(links) {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), links: links })); } catch (e) {}
+    }
+
+    function showSkeleton() {
+      show(errorEl, false); show(noteEl, false); show(emptyEl, false); show(filtersBar, false);
+      grid.innerHTML = skeletonCard() + skeletonCard();
+      grid.setAttribute('aria-busy', 'true');
+      announce('Loading projects…');
+    }
+
+    function showError(kind) {
+      var e = own(ERRORS, kind) ? ERRORS[kind] : ERRORS.network;
+      grid.innerHTML = '';
+      grid.setAttribute('aria-busy', 'false');
+      show(filtersBar, false); show(emptyEl, false); show(noteEl, false);
+      $('err-title').textContent = e.title;
+      $('err-text').textContent = e.text;
+      show($('err-retry'), e.retry);
+      show(errorEl, true);
+      announce(e.title + '.');
+    }
+
+    function renderAll(links) {
+      state.links = links;
+      var cats = categoriesOf(links);
+      if (state.filter !== 'all' && cats.indexOf(state.filter) === -1) state.filter = 'all';
+
+      buildFilters(cats);
+      renderProjects(links);
+      refreshIcons();                              /* icons must be created AFTER the dynamic markup exists */
+      setActiveTab(state.filter);
+      applyFilter(state.filter, true);
+      placeThumb(true);
+      setCounter(projectCountEl, shippedCount(links));
+
+      show(errorEl, false);
+      show(emptyEl, links.length === 0);
+      grid.setAttribute('aria-busy', 'false');
+      announce(links.length === 0 ? 'No projects yet.' : 'Loaded ' + links.length + (links.length === 1 ? ' project.' : ' projects.'));
+    }
+
+    function setBusyUi(on) {
+      ['err-retry', 'note-retry'].forEach(function (id) {
+        var b = $(id);
+        b.classList.toggle('is-loading', on);
+        b.disabled = on;
+      });
+      $('note-text').textContent = on ? 'Refreshing…' : NOTE_TEXT;
+    }
+
+    function load() {
+      if (loading) return;
+      loading = true;
+      setBusyUi(true);
+      if (!hasRendered) showSkeleton();
+
+      fetchLinks().then(function (links) {
+        writeCache(links);
+        var sig = JSON.stringify(links);
+        if (!hasRendered || sig !== lastSig) renderAll(links);
+        lastSig = sig;
+        hasRendered = true;
+        show(noteEl, false);
+        show(errorEl, false);
+      }).catch(function (err) {
+        console.error('[linktree] could not load the project list:', err);
+        if (hasRendered) { show(noteEl, true); announce("Couldn't refresh the projects."); }
+        else showError(err && err.kind);
+      }).then(function () {
+        loading = false;
+        setBusyUi(false);
+      });
+    }
+
+    $('err-retry').addEventListener('click', load);
+    $('note-retry').addEventListener('click', load);
+
+    /* ---------- Go ---------- */
+    refreshIcons();                                /* static icons: theme button, avatar fallback, socials, notices */
+    if (!isConfigured()) {
+      showError('config');
     } else {
-      counters.forEach(function (el) { animateCounter(el); });
+      var cached = readCache();
+      if (cached && cached.length) {               /* instant paint from the last visit, then refresh behind it */
+        renderAll(cached);
+        hasRendered = true;
+        lastSig = JSON.stringify(cached);
+      }
+      load();
     }
   </script>
 </body>
